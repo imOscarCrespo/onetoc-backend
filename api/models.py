@@ -17,7 +17,7 @@ class Team(models.Model):
     users = models.ManyToManyField(User)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.club.name)
+        return "%s %s %s" % (self.name, self.club, self.users)
 
 class Match(models.Model):
     name = models.CharField(max_length=30)

@@ -8,15 +8,13 @@ class ClubSerializer(serializers.ModelSerializer):
         model = Club
         fields = ['name']
 class TeamSerializer(serializers.ModelSerializer):
-    club = ClubSerializer()
     class Meta:
         model = Team
         fields = ['id', 'name', 'club']
 class MatchSerializer(serializers.ModelSerializer):
-    team = TeamSerializer()
     class Meta:
         model = Match
-        fields = ['id', 'name', 'timeline', 'team', 'media']
+        fields = ['id', 'name', 'timeline', 'team', 'media', 'created_at']
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -24,4 +22,4 @@ class UserSerializer(serializers.ModelSerializer):
 class ActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Action
-        fields = ['name', 'color']
+        fields = ['name', 'color', 'match', 'created_at']
