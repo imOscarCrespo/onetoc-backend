@@ -125,3 +125,14 @@ class ActionListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TimelineListApiView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        match_ids_req = request.query_params.getlist('matches')
+        match_ids = strToArr(match_ids_req[0])
+        actions = Action.objects.filter(match__id__in=match_ids)
+        serializer = ActionSerializer(actions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

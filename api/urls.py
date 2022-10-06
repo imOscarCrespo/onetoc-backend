@@ -3,7 +3,8 @@ from .views import (
     ActionListApiView,
     ClubListApiView,
     MatchListApiView,
-    TeamListApiView
+    TeamListApiView,
+    TimelineListApiView
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('team', TeamListApiView.as_view()),
     path('match', MatchListApiView.as_view()),
     path('action', ActionListApiView.as_view()),
+    path('timeline', TimelineListApiView.as_view())
 ]
