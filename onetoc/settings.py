@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +25,6 @@ SECRET_KEY = 'django-insecure-=_wl^q=-yhv51k_imq5nv13+t$%qc&nv0pr-f5#c5^*9claq53
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-#LOCAL
-# ALLOWED_HOSTS = []
-
-#PROD
-ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com']
 
 
 # Application definition
@@ -86,16 +81,31 @@ WSGI_APPLICATION = 'onetoc.wsgi.application'
 #     }
 # }
 
-DATABASES = {     
-'default': {
- 'ENGINE': 'django.db.backends.postgresql_psycopg2',
- 'NAME': 'onetoc',
- 'USER': 'oscarcrespo',
- 'PASSWORD': 'Uecornella123',
- 'HOST': 'awseb-e-nn467bvznz-stack-awsebrdsdatabase-g3o8t3thzhgz.cs7hez3ja9gp.eu-west-1.rds.amazonaws.com',
- 'PORT': '5432'  
-} 
-} 
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {     
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],  
+        } 
+    }
+    ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com'] 
+else:
+    DATABASES = {     
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'onetocdb',
+            'USER': 'admin',
+            'PASSWORD': 'admin',
+            'HOST': 'localhost',
+            'PORT': '5432'  
+        } 
+    }
+    ALLOWED_HOSTS = []    
+
 
 
 # Password validation
