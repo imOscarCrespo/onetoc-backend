@@ -33,9 +33,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
-      - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*'
-
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v20
         with:
@@ -43,5 +40,5 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: onetoc-api
           environment_name: onetoc-api
-          version_label: 1
+          version_label: 12345
           region: eu-west-1
