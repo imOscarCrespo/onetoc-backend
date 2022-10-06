@@ -99,7 +99,7 @@ if 'RDS_DB_NAME' in os.environ:
             'NAME': 'onetoc',
             'USER': 'oscarcrespo',
             'PASSWORD': 'Uecornella123',
-            'HOST': 'awseb-e-nn467bvznz-stack-awsebrdsdatabase-g3o8t3thzhgz.cs7hez3ja9gp.eu-west-1.rds.amazonaws.com',
+            'HOST': os.environ['RDS_HOSTNAME'],
             'PORT': os.environ['RDS_PORT'],  
         } 
     }
