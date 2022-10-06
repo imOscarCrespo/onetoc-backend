@@ -19,7 +19,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
-          aws-region: "us-east-1"
+          aws-region: "eu-west-1"
 
       - name: Upload package to S3 bucket
         run: aws s3 cp deploy_package.zip s3://onetoc-app-deploy/
