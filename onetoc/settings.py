@@ -74,24 +74,6 @@ WSGI_APPLICATION = 'onetoc.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {     
-#         'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'onetoc',
-#         'USER': 'oscarcrespo',
-#         'PASSWORD': 'Uecornella123',
-#         'HOST': 'awseb-e-nn467bvznz-stack-awsebrdsdatabase-g3o8t3thzhgz.cs7hez3ja9gp.eu-west-1.rds.amazonaws.com',
-#         'PORT': '5432'  
-#         } 
-#     } 
-
 if 'RDS_DB_NAME' in os.environ:
     DATABASES = {     
         'default': {
