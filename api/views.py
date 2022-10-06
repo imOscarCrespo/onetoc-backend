@@ -115,13 +115,13 @@ class ActionListApiView(APIView):
         serializer = ActionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            if action_name == 'full_time':
-                actions = Action.objects.filter(match__id=request.data.get('match')).values()
-                timeline = Timeline(request.data.get('match'), request.user, actions)
-                timeline = timeline.generate()
-                match = Match.objects.get(id=request.data.get('match'))
-                match.timeline = timeline
-                match.save()
+            # if action_name == 'full_time':
+            #     actions = Action.objects.filter(match__id=request.data.get('match')).values()
+            #     timeline = Timeline(request.data.get('match'), request.user, actions)
+            #     timeline = timeline.generate()
+            #     match = Match.objects.get(id=request.data.get('match'))
+            #     match.timeline = timeline
+            #     match.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
