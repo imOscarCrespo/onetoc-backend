@@ -84,14 +84,14 @@ WSGI_APPLICATION = 'onetoc.wsgi.application'
 if 'RDS_DB_NAME' in os.environ:
     DATABASES = {     
         'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'onetoc',
-        'USER': 'oscarcrespo',
-        'PASSWORD': 'Uecornella123',
-        'HOST': 'awseb-e-nn467bvznz-stack-awsebrdsdatabase-g3o8t3thzhgz.cs7hez3ja9gp.eu-west-1.rds.amazonaws.com',
-        'PORT': '5432'  
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],  
         } 
-    } 
+    }
     ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com'] 
 else:
     DATABASES = {     
