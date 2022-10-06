@@ -98,7 +98,7 @@ if 'RDS_DB_NAME' in os.environ:
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'onetoc',
             'USER': 'oscarcrespo',
-            'PASSWORD': 'Uecornella123',
+            'PASSWORD': os.environ['RDS_PASSWORD'],
             'HOST': os.environ['RDS_HOSTNAME'],
             'PORT': os.environ['RDS_PORT'],  
         } 
