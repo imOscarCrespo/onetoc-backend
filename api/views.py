@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.middleware.csrf import get_token
 
 # Create your views here.
 from rest_framework.views import APIView
@@ -16,8 +17,14 @@ def strToArr(str):
     arr = str.split(',')
     new = map(stringToInt, arr)
     return list(new)
-    
 
+class CsrfApiView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        '''
+        List all the club items for given requested user
+        '''
+        return Response({'csrfToken': get_token(request)}, status=status.HTTP_200_OK)
 
 class ClubListApiView(APIView):
 
