@@ -73,6 +73,7 @@ WSGI_APPLICATION = 'onetoc.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 if 'RDS_DB_NAME' in os.environ:
     DATABASES = {     
@@ -87,16 +88,22 @@ if 'RDS_DB_NAME' in os.environ:
     }
     ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com'] 
 else:
-    DATABASES = {     
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'onetocdb',
-            'USER': 'admin',
-            'PASSWORD': 'admin',
-            'HOST': 'localhost',
-            'PORT': '5432'  
-        } 
+    # DATABASES = {     
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'NAME': 'onetocdb',
+    #         'USER': 'admin',
+    #         'PASSWORD': 'admin',
+    #         'HOST': 'localhost',
+    #         'PORT': '5432'  
+    #     } 
+    # }
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(PROJECT_DIR, 'onetoc.db'),
     }
+}
     ALLOWED_HOSTS = []    
 
 
