@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'onetoc.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 if 'RDS_DB_NAME' in os.environ:
     DATABASES = {     
         'default': {
@@ -90,47 +90,6 @@ if 'RDS_DB_NAME' in os.environ:
     }
     ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com'] 
 else:
-<<<<<<< Updated upstream
-    DATABASES = {     
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'onetocdb',
-            'USER': 'admin',
-            'PASSWORD': 'admin',
-            'HOST': 'localhost',
-            'PORT': '5432'  
-        } 
-    }
-    ALLOWED_HOSTS = ["*"]
-    CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']    
-
-CORS_ORIGIN_ALLOW_ALL = True
-
-CORS_ALLOW_CREDENTIALS = True
-
-
-
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
-=======
     # DATABASES = {     
     #     'default': {
     #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -149,7 +108,6 @@ CORS_ALLOW_HEADERS = [
     }
 }
    
->>>>>>> Stashed changes
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
