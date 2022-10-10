@@ -9,6 +9,7 @@ from rest_framework import permissions
 from .models import Team, Match, Action, Club
 from .serializers import ClubSerializer, TeamSerializer, MatchSerializer, ActionSerializer
 from .timeline import Timeline
+from rest_framework.permissions import IsAuthenticated
 
 def stringToInt(str):
     return int(str)
@@ -28,7 +29,7 @@ class CsrfApiView(APIView):
 
 class ClubListApiView(APIView):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         '''
@@ -54,7 +55,7 @@ class ClubListApiView(APIView):
 
 class TeamListApiView(APIView):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         teams = Team.objects.filter(users__username=request.user)
@@ -77,7 +78,7 @@ class TeamListApiView(APIView):
 
 class MatchListApiView(APIView):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         team_ids_req = request.query_params.getlist('teams')
@@ -103,7 +104,7 @@ class MatchListApiView(APIView):
 
 class ActionListApiView(APIView):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         match_ids_req = request.query_params.getlist('matches')
@@ -135,7 +136,7 @@ class ActionListApiView(APIView):
 
 class TimelineListApiView(APIView):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         match_ids_req = request.query_params.getlist('matches')

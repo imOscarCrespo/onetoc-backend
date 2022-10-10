@@ -90,6 +90,7 @@ if 'RDS_DB_NAME' in os.environ:
     }
     ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com'] 
 else:
+<<<<<<< Updated upstream
     DATABASES = {     
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -129,7 +130,32 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+=======
+    # DATABASES = {     
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'NAME': 'onetocdb',
+    #         'USER': 'admin',
+    #         'PASSWORD': 'admin',
+    #         'HOST': 'localhost',
+    #         'PORT': '5432'  
+    #     } 
+    # }
+    ALLOWED_HOSTS = ["*"]    
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(PROJECT_DIR, 'onetoc.db'),
+    }
+}
+   
+>>>>>>> Stashed changes
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
