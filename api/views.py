@@ -10,7 +10,7 @@ from .models import Team, Match, Action, Club
 from .serializers import ClubSerializer, TeamSerializer, MatchSerializer, ActionSerializer
 from .timeline import Timeline
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 def stringToInt(str):
     return int(str)
@@ -32,17 +32,13 @@ class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
         try:
-            refresh_token_req = request.data["refresh_token"]
-            access_token_req = request.data["access_token"]
-            print('hola')
-            refresh_token = RefreshToken(refresh_token_req)
-            access_token = RefreshToken(access_token_req)
-            refresh_token.blacklist()
-            access_token.blacklist()
-            print('adios')
+            refresh_token = request.data["refresh_token"]
+            print('hey')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            print('hey')
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class ClubListApiView(APIView):
