@@ -103,16 +103,46 @@ class MatchListApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+        new_id = (Match.objects.last()).id
         data = {
+            'id': new_id + 1,
             'name': request.data.get('name'), 
             'timeline': request.data.get('timeline'), 
             'team': request.data.get('team'), # team id
             'media': request.data.get('media'), 
         }
         serializer = MatchSerializer(data=data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
+            class actions: 
+                def __init__(self, name, color, match, created_at, enabled, default, events):
+                    self.name = name 
+                    self.color = color
+                    self.match = match
+                    self.created_at = created_at
+                    self.enabled = enabled
+                    self.default = default
+                    self.events = events
+            default_buttons = []
+            default_buttons.append( actions('goal', "#5557df", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('kick_off', "#a7df68", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('first_half', "#cbcbcb", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('second_half', "#787878", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('end', "#f1ae57", new_id +1, datetime.datetime.now(), True, True, []))
+            
+            for button in default_buttons:
+                data = {
+                    'name': button.name,
+                    'color': button.color,
+                    'created_at': button.created_at,
+                    'match': button.match,
+                    'enabled': button.enabled,
+                    'default': button.default,
+                    'events': []
+                }
+                action_serializer = ActionSerializer(data=data)
+                if action_serializer.is_valid():
+                    action_serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
