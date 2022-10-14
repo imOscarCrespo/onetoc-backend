@@ -133,11 +133,11 @@ class ActionListApiView(APIView):
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def patch(self, request, *args, **kwargs):
-        action_id_req = request.query_params.get('id')
+    def patch(self, request, id, *args, **kwargs):
+        action_id_req = id
         action_res = Action.objects.get(id=action_id_req)
         now = datetime.datetime.now()
-        action_res.events.append(now.strftime("%m-%d-%Y %H:%M:%S"))
+        action_res.events = request.data.get('events')
         action_res.save()
         return Response(status=status.HTTP_200_OK)
 
