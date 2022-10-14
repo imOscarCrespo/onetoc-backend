@@ -11,6 +11,7 @@ from .serializers import ClubSerializer, TeamSerializer, MatchSerializer, Action
 from .timeline import Timeline
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+import json, datetime
 
 def stringToInt(str):
     return int(str)
@@ -122,17 +123,33 @@ class ActionListApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         match_ids_req = request.query_params.getlist('matches')
+        default_actions_req = request.query_params.get('default')
         match_ids = strToArr(match_ids_req[0])
-        actions = Action.objects.filter(match__id__in=match_ids)
+        if default_actions_req:
+            default_action_param = json.loads(default_actions_req.lower())
+            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param)
+        else:
+            actions = Action.objects.filter(match__id__in=match_ids)
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def patch(self, request, *args, **kwargs):
+        action_id_req = request.query_params.get('id')
+        action_res = Action.objects.get(id=action_id_req)
+        now = datetime.datetime.now()
+        action_res.events.append(now.strftime("%m-%d-%Y %H:%M:%S"))
+        action_res.save()
+        return Response(status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         action_name = request.data.get('name')
         data = {
             'name': action_name,
             'color': request.data.get('color'),
-            'match': request.data.get('match') 
+            'match': request.data.get('match'),
+            'enabled': request.data.get('enabled'),
+            'default': request.data.get('default'),
+            'events': []
         }
         serializer = ActionSerializer(data=data)
         if serializer.is_valid():

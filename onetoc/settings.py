@@ -91,23 +91,23 @@ if 'RDS_DB_NAME' in os.environ:
     }
     ALLOWED_HOSTS = ['onetoc-api.eba-ifevgi2m.eu-west-1.elasticbeanstalk.com'] 
 else:
-    # DATABASES = {     
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #         'NAME': 'onetocdb',
-    #         'USER': 'admin',
-    #         'PASSWORD': 'admin',
-    #         'HOST': 'localhost',
-    #         'PORT': '5432'  
-    #     } 
-    # }
-    ALLOWED_HOSTS = ["*"]    
-    DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_DIR, 'onetoc.db'),
-        }
+    DATABASES = {     
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'onetocdb',
+            'USER': 'admin',
+            'PASSWORD': 'admin',
+            'HOST': 'localhost',
+            'PORT': '5432'  
+        } 
     }
+    ALLOWED_HOSTS = ["*"]    
+    # DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(PROJECT_DIR, 'onetoc.db'),
+    #     }
+    # }
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True
 
