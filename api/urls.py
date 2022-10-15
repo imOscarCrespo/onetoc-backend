@@ -4,7 +4,9 @@ from .views import (
     ClubListApiView,
     MatchListApiView,
     TeamListApiView,
-    TimelineListApiView
+    TimelineListApiView,
+    CsrfApiView,
+    LogoutView
 )
 
 urlpatterns = [
@@ -12,5 +14,8 @@ urlpatterns = [
     path('team', TeamListApiView.as_view()),
     path('match', MatchListApiView.as_view()),
     path('action', ActionListApiView.as_view()),
-    path('timeline', TimelineListApiView.as_view())
+    re_path('action/(?P<id>\d+)/', ActionListApiView.as_view(), name='action'),
+    path('timeline', TimelineListApiView.as_view()),
+    path('csrf', CsrfApiView.as_view()),
+    path('logout', LogoutView.as_view())
 ]

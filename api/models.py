@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here
 
@@ -36,6 +37,9 @@ class Action(models.Model):
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    default = models.BooleanField()
+    enabled = models.BooleanField()
+    events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.match)
