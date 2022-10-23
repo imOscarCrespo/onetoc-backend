@@ -97,7 +97,7 @@ class MatchListApiView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request,id, *args, **kwargs):
+    def get(self, request, id=False, *args, **kwargs):
         team_ids_req = request.query_params.getlist('teams')
         if team_ids_req:
             team_ids = strToArr(team_ids_req[0])
