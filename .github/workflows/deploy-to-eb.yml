@@ -31,10 +31,10 @@ jobs:
       - name: Create new ElasticBeanstalk Application Version
         run: |
           aws elasticbeanstalk create-application-version \
-          --application-name onetoc-api \
+          --application-name prod-onetoc-api \
           --source-bundle S3Bucket="onetoc-app-deploy",S3Key="deploy_package.zip" \
           --version-label "ver-${{ github.sha }}" \
           --description "commit-sha-${{ github.sha }}"
 
       - name: Deploy new ElasticBeanstalk Application Version
-        run: aws elasticbeanstalk update-environment --environment-name onetoc-api --version-label "ver-${{ github.sha }}"
+        run: aws elasticbeanstalk update-environment --environment-name Prodonetocapi-env --version-label "ver-${{ github.sha }}"
