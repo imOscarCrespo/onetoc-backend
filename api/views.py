@@ -113,7 +113,10 @@ class MatchListApiView(APIView):
                 raise PermissionDenied()
 
     def post(self, request, *args, **kwargs):
-        new_id = (Match.objects.last()).id
+        try:
+            new_id = (Match.objects.last()).id
+        except:
+            new_id = 1
         data = {
             'id': new_id + 1,
             'name': request.data.get('name'), 
