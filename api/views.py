@@ -11,7 +11,9 @@ from .serializers import ClubSerializer, TeamSerializer, MatchSerializer, Action
 from .timeline import Timeline
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from .utils import get_match_by_id
 import json, datetime
+from django.core.exceptions import PermissionDenied
 
 def stringToInt(str):
     return int(str)
@@ -95,12 +97,20 @@ class MatchListApiView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, id=False, *args, **kwargs):
         team_ids_req = request.query_params.getlist('teams')
-        team_ids = strToArr(team_ids_req[0])
-        match = Match.objects.filter(team__id__in=team_ids)
-        serializer = MatchSerializer(match, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if team_ids_req:
+            team_ids = strToArr(team_ids_req[0])
+            match = Match.objects.filter(team__id__in=team_ids)
+            serializer = MatchSerializer(match, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            match = get_match_by_id(id,request.user)
+            if match is not False:
+                serializer = MatchSerializer(match)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                raise PermissionDenied()
 
     def post(self, request, *args, **kwargs):
         new_id = (Match.objects.last()).id
