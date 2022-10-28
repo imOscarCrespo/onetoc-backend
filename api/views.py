@@ -116,7 +116,7 @@ class MatchListApiView(APIView):
         try:
             new_id = (Match.objects.last()).id
         except:
-            new_id = 1
+            new_id = 0
         data = {
             'id': new_id + 1,
             'name': request.data.get('name'), 
