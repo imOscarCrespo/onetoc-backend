@@ -14,7 +14,7 @@ class TeamSerializer(serializers.ModelSerializer):
 class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
-        fields = ['id', 'name', 'timeline', 'team', 'media', 'created_at']
+        fields = ['id', 'name', 'timeline', 'team', 'media', 'created_at', 'started_at', 'finished_at']
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

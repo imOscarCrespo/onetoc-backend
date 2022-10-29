@@ -101,7 +101,7 @@ class MatchListApiView(APIView):
         team_ids_req = request.query_params.getlist('teams')
         if team_ids_req:
             team_ids = strToArr(team_ids_req[0])
-            match = Match.objects.filter(team__id__in=team_ids)
+            match = Match.objects.filter(team__id__in=team_ids).order_by('created_at')
             serializer = MatchSerializer(match, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
@@ -170,17 +170,33 @@ class ActionListApiView(APIView):
         match_ids = strToArr(match_ids_req[0])
         if default_actions_req:
             default_action_param = json.loads(default_actions_req.lower())
-            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param)
+            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).order_by('created_at')
         else:
-            actions = Action.objects.filter(match__id__in=match_ids)
+            actions = Action.objects.filter(match__id__in=match_ids).order_by('created_at')
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def patch(self, request, id, *args, **kwargs):
         action_id_req = id
         action_res = Action.objects.get(id=action_id_req)
-        now = datetime.datetime.now()
+        has_to_disable = False
+        actions_to_disable_once = ['kick_off','first_half','second_half','end']
         action_res.events = request.data.get('events')
+        if action_res.name in actions_to_disable_once:
+            has_to_disable = True
+        if action_res.name == 'kick_off':
+            action_match = Match.objects.get(id=action_res.match.id)
+            started_at = action_res.events[0]
+            action_match.started_at = started_at
+            action_match.save()
+        elif action_res.name == 'end':
+            finished_at = action_res.events[0]
+            action_match = Match.objects.get(id=action_res.match.id)
+            action_match.finished_at = finished_at
+            action_match.save()
+        action_res.events = request.data.get('events')
+        if has_to_disable == True:
+            action_res.enabled = False
         action_res.save()
         return Response(status=status.HTTP_200_OK)
 
