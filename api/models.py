@@ -29,6 +29,7 @@ class Match(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
     finished_at = models.CharField(max_length=200, null=True)
+    status = models.CharField(max_length=30, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.team.name, self.id)
