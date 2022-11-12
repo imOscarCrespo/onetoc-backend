@@ -22,13 +22,13 @@ class Team(models.Model):
 
 class Match(models.Model):
     name = models.CharField(max_length=30)
-    timeline = models.URLField(max_length = 200, null=True)
+    timeline = models.URLField(max_length = 200, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete = models.CASCADE)
-    media = models.URLField(max_length = 200, null=True)
+    media = models.URLField(max_length = 200, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    started_at = models.CharField(max_length=200, null=True)
-    finished_at = models.CharField(max_length=200, null=True)
+    started_at = models.CharField(max_length=200, null=True, blank=True)
+    finished_at = models.CharField(max_length=200, null=True, blank=True)
     status = models.CharField(max_length=30, null=True)
 
     def __str__(self):
