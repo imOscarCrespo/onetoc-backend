@@ -122,7 +122,8 @@ class MatchListApiView(APIView):
             'name': request.data.get('name'), 
             'timeline': None, 
             'team': request.data.get('team'), # team id
-            'media': None, 
+            'media': None,
+            'status': 'PUBLISHED' 
         }
         serializer = MatchSerializer(data=data)
         if serializer.is_valid():
