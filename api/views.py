@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from django.middleware.csrf import get_token
 
@@ -137,11 +138,10 @@ class MatchListApiView(APIView):
                     self.default = default
                     self.events = events
             default_buttons = []
-            default_buttons.append( actions('goal', "#5557df", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('kick_off', "#a7df68", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('first_half', "#cbcbcb", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('second_half', "#787878", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('end', "#f1ae57", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, datetime.datetime.now(), True, True, []))
             
             for button in default_buttons:
                 data = {
@@ -202,8 +202,10 @@ class ActionListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         action_name = request.data.get('name')
+        action_key = re.sub('[^A-Za-z0-9]+', '', action_name)
         data = {
             'name': action_name,
+            'key': action_key,
             'color': request.data.get('color'),
             'match': request.data.get('match'),
             'enabled': request.data.get('enabled'),

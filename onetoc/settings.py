@@ -92,6 +92,16 @@ if 'RDS_DB_NAME' in os.environ:
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True    
 else:
+    # DATABASES = {     
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'NAME': 'onetoc',
+    #         'USER': 'oscarcrespo',
+    #         'PASSWORD': 'Uecornella123',
+    #         'HOST': 'onetoc.cs7hez3ja9gp.eu-west-1.rds.amazonaws.com',
+    #         'PORT': '5432'  
+    #     } 
+    # }
     DATABASES = {     
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',

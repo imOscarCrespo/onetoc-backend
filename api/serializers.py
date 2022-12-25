@@ -22,4 +22,4 @@ class UserSerializer(serializers.ModelSerializer):
 class ActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Action
-        fields = ['id','name', 'color', 'match', 'created_at', 'events', 'default', 'enabled', 'updated_at']
+        fields = ['id','name','key', 'color', 'match', 'created_at', 'events', 'default', 'enabled', 'updated_at']
