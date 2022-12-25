@@ -1,6 +1,6 @@
 # todo/todo_api/serializers.py
 from rest_framework import serializers
-from .models import Club, Team, Match, Action
+from .models import Club, Tab, Team, Match, Action
 from django.contrib.auth.models import User
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -23,3 +23,7 @@ class ActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Action
         fields = ['id','name','key', 'color', 'match', 'created_at', 'events', 'default', 'enabled', 'updated_at']
+class TabSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tab
+        fields = ['name','icon','order']

@@ -20,6 +20,14 @@ class Team(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.name, self.club, self.users)
 
+class Tab(models.Model):
+    name = models.CharField(max_length=30)
+    icon = models.CharField(max_length=30)
+    order = models.PositiveBigIntegerField()
+
+    def __str__(self):
+        return "%s %s" % (self.name, self.order)
+
 class Match(models.Model):
     name = models.CharField(max_length=30)
     timeline = models.URLField(max_length = 200, null=True)
@@ -29,6 +37,7 @@ class Match(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
     finished_at = models.CharField(max_length=200, null=True)
+    # tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.team.name, self.id)
