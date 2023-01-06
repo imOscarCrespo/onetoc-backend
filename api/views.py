@@ -129,7 +129,8 @@ class MatchListApiView(APIView):
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, name, color, match, created_at, enabled, default, events):
+                def __init__(self, key, name, color, match, created_at, enabled, default, events):
+                    self.key = key 
                     self.name = name 
                     self.color = color
                     self.match = match
@@ -145,6 +146,7 @@ class MatchListApiView(APIView):
             
             for button in default_buttons:
                 data = {
+                    'key': button.key,
                     'name': button.name,
                     'color': button.color,
                     'created_at': button.created_at,
