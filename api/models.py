@@ -37,7 +37,7 @@ class Match(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
     finished_at = models.CharField(max_length=200, null=True)
-    # tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
+    tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.team.name, self.id)
@@ -54,4 +54,12 @@ class Action(models.Model):
     events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.match)
+        return "%s %s %s" % (self.name, self.match, self.id)
+
+class MatchAction(models.Model):
+    match = models.ForeignKey(Match, on_delete = models.CASCADE)
+    action = models.ForeignKey(Action, on_delete = models.CASCADE)
+    
+
+    def __str__(self):
+        return "%s %s %s" % (self.name, self.team.name, self.id)

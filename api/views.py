@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from .models import Tab, Team, Match, Action, Club
-from .serializers import ClubSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
+from .serializers import ClubSerializer, MatchActionSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
 from .timeline import Timeline
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -124,6 +124,7 @@ class MatchListApiView(APIView):
             'timeline': None, 
             'team': request.data.get('team'), # team id
             'media': None, 
+            'tab': request.data.get('tab'), # tab id
         }
         serializer = MatchSerializer(data=data)
         if serializer.is_valid():
@@ -241,6 +242,20 @@ class TabListApiView(APIView):
             'order': request.data.get('order'),
         }
         serializer = TabSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MatchActionListApiView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        data = {
+            'match': request.data.get('match_id'),
+            'action': request.data.get('action_id'),
+        }
+        serializer = MatchActionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
