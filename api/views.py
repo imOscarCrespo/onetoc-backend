@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Tab, Team, Match, Action, Club
-from .serializers import ClubSerializer, MatchActionSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
+from .models import Tab, Team, Match, Action, Club, Event
+from .serializers import ClubSerializer, EventSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
 from .timeline import Timeline
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -164,7 +164,7 @@ class MatchListApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ActionListApiView(APIView):
-
+    
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -184,7 +184,6 @@ class ActionListApiView(APIView):
         action_res = Action.objects.get(id=action_id_req)
         has_to_disable = False
         actions_to_disable_once = ['kick_off','first_half','second_half','end']
-        action_res.events = request.data.get('events')
         if action_res.name in actions_to_disable_once:
             has_to_disable = True
         if action_res.name == 'kick_off':
@@ -197,7 +196,6 @@ class ActionListApiView(APIView):
             action_match = Match.objects.get(id=action_res.match.id)
             action_match.finished_at = finished_at
             action_match.save()
-        action_res.events = request.data.get('events')
         if has_to_disable == True:
             action_res.enabled = False
         action_res.save()
@@ -211,20 +209,13 @@ class ActionListApiView(APIView):
             'key': action_key,
             'color': request.data.get('color'),
             'match': request.data.get('match'),
-            'enabled': request.data.get('enabled'),
+            'status': 'PUBLISHED',
             'default': request.data.get('default'),
-            'events': []
+            'updated_by': request.user.pk
         }
         serializer = ActionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            # if action_name == 'full_time':
-            #     actions = Action.objects.filter(match__id=request.data.get('match')).values()
-            #     timeline = Timeline(request.data.get('match'), request.user, actions)
-            #     timeline = timeline.generate()
-            #     match = Match.objects.get(id=request.data.get('match'))
-            #     match.timeline = timeline
-            #     match.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -248,19 +239,42 @@ class TabListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class MatchActionListApiView(APIView):
+class EventListApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        events = Event.objects.all().order_by('created_at')
+        serializer = EventSerializer(events, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         data = {
             'match': request.data.get('match_id'),
             'action': request.data.get('action_id'),
+            'status': "PUBLISHED",
+            'updated_by': request.user.pk,
+            'disabled': False
         }
-        serializer = MatchActionSerializer(data=data)
+        serializer = EventSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, id, *args, **kwargs):
+        event_id = id
+        event_to_update = Event.objects.get(id=event_id)
+        color = request.data.get('color')
+        disabled = request.data.get('disabled')
+        action_id = request.data.get('action_id')
+        if action_id:
+            event_to_update.action_id = action_id
+        if color:
+            event_to_update.color = color
+        if disabled:
+            event_to_update.disabled = disabled
+        event_to_update.updated_by = request.user.pk
+        event_to_update.save()
+        return Response(status=status.HTTP_200_OK)
 
 class TimelineListApiView(APIView):
 
