@@ -20,6 +20,7 @@ urlpatterns = [
     path('event', EventListApiView.as_view()),
     re_path('action/(?P<id>\d+)', ActionListApiView.as_view(), name='action'),
     re_path('match/(?P<id>\d+)', MatchListApiView.as_view(), name='match_by_id'),
+    re_path('event/(?P<id>\d+)', EventListApiView.as_view(), name='event_by_match_id'),
     path('timeline', TimelineListApiView.as_view()),
     path('csrf', CsrfApiView.as_view()),
     path('logout', LogoutView.as_view())
