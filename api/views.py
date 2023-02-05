@@ -208,7 +208,8 @@ class ActionListApiView(APIView):
 
 class TabListApiView(APIView):
     def get(self, request, *args, **kwargs):
-        tabs = Tab.objects.all().order_by('order')
+        team_id = request.query_params.get('team')
+        tabs = Tab.objects.filter(team=team_id).order_by('order')
         serializer = TabSerializer(tabs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
