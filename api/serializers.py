@@ -26,7 +26,7 @@ class ActionSerializer(serializers.ModelSerializer):
 class TabSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tab
-        fields = ['name','icon','order']
+        fields = ['id', 'name','icon','order']
 class TabTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tab
