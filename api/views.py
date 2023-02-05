@@ -7,9 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Tab, Team, Match, Action, Club, Event
-from .serializers import ClubSerializer, EventSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
-from .timeline import Timeline
+from .models import Tab, TabType, Team, Match, Action, Club
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
@@ -231,6 +230,7 @@ class TabListApiView(APIView):
             'name': request.data.get('name'),
             'icon': request.data.get('name'),
             'order': request.data.get('order'),
+            'type': request.data.get('type'),
         }
         serializer = TabSerializer(data=data)
         if serializer.is_valid():
@@ -239,28 +239,45 @@ class TabListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class EventListApiView(APIView):
+class TabTypeListApiView(APIView):
     def get(self, request, *args, **kwargs):
-        events = Event.objects.all().order_by('created_at')
-        serializer = EventSerializer(events, many=True)
+        tab_types = TabType.objects.all().order_by('created_at')
+        serializer = TabTypeSerializer(tab_types, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         data = {
-            'match': request.data.get('match_id'),
-            'action': request.data.get('action_id'),
-            'status': "PUBLISHED",
-            'updated_by': request.user.pk,
-            'disabled': False
+            'name': request.data.get('name'),
         }
-        serializer = EventSerializer(data=data)
+        serializer = TabTypeSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class EventListApiView(APIView):
+#     def get(self, request, *args, **kwargs):
+#         events = Event.objects.all().order_by('created_at')
+#         serializer = EventSerializer(events, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+#     def post(self, request, *args, **kwargs):
+#         data = {
+#             'match': request.data.get('match_id'),
+#             'action': request.data.get('action_id'),
+#             'status': "PUBLISHED",
+#             'updated_by': request.user.pk,
+#             'disabled': False
+#         }
+#         serializer = EventSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def patch(self, request, id, *args, **kwargs):
+#     def patch(self, request, id, *args, **kwargs):
         event_id = id
         event_to_update = Event.objects.get(id=event_id)
         color = request.data.get('color')

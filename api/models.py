@@ -20,14 +20,24 @@ class Team(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.name, self.club, self.users)
 
+class TabType(models.Model):
+    name = models.CharField(max_length=30)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "%s" % (self.name)
+
 class Tab(models.Model):
     name = models.CharField(max_length=30)
     icon = models.CharField(max_length=30)
     order = models.PositiveBigIntegerField()
     team = models.ForeignKey(Team, on_delete = models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.ForeignKey(TabType, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.order)
+
 
 class Match(models.Model):
     name = models.CharField(max_length=30)
@@ -57,13 +67,13 @@ class Action(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)
         
-class Event(models.Model):
-    match = models.ForeignKey(Match, on_delete = models.CASCADE)
-    action = models.ForeignKey(Action, on_delete = models.CASCADE)
-    status = models.CharField(max_length=30, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+# class Event(models.Model):
+#     match = models.ForeignKey(Match, on_delete = models.CASCADE)
+#     action = models.ForeignKey(Action, on_delete = models.CASCADE)
+#     status = models.CharField(max_length=30, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now_add=True)
+#     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
 
-    def __str__(self):
-        return "%s %s" % (self.match.id, self.action.id)
+#     def __str__(self):
+#         return "%s %s" % (self.match.id, self.action.id)
