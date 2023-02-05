@@ -60,20 +60,19 @@ class Action(models.Model):
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     default = models.BooleanField()
     status = models.CharField(max_length=30, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)
         
-# class Event(models.Model):
-#     match = models.ForeignKey(Match, on_delete = models.CASCADE)
-#     action = models.ForeignKey(Action, on_delete = models.CASCADE)
-#     status = models.CharField(max_length=30, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now_add=True)
-#     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+class Event(models.Model):
+    match = models.ForeignKey(Match, on_delete = models.CASCADE)
+    action = models.ForeignKey(Action, on_delete = models.CASCADE)
+    status = models.CharField(max_length=30, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
 
-#     def __str__(self):
-#         return "%s %s" % (self.match.id, self.action.id)
+    def __str__(self):
+        return "%s %s" % (self.match.id, self.action.id)
