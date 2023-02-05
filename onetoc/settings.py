@@ -73,6 +73,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'onetoc.wsgi.application'
 
+if not os.environ.get('DJANGO_PRODUCTION'):
+    MIDDLEWARE.remove('django.middleware.security.SecurityMiddleware')
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
