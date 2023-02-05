@@ -59,6 +59,7 @@ class Action(models.Model):
     color = models.CharField(max_length=30)
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     default = models.BooleanField()
+    enabled = models.BooleanField()
     status = models.CharField(max_length=30, null=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)

@@ -128,18 +128,19 @@ class MatchListApiView(APIView):
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, name, key, color, match, status, default):
+                def __init__(self, name, key, color, match, status, enabled, default):
                     self.key = key 
                     self.name = name 
                     self.color = color
                     self.match = match
                     self.status = status
+                    self.enabled = enabled
                     self.default = default
             default_buttons = []
-            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, "PUBLISHED", True))
-            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, "PUBLISHED", True))
-            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, "PUBLISHED", True))
-            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, "PUBLISHED", True))
+            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, "PUBLISHED", True, True))
+            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, "PUBLISHED", True, True))
+            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, "PUBLISHED", True, True))
+            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, "PUBLISHED", True, True))
             
             for button in default_buttons:
                 data = {
@@ -148,6 +149,7 @@ class MatchListApiView(APIView):
                     'color': button.color,
                     'match': button.match,
                     'status': button.status,
+                    'enabled': button.enabled,
                     'default': button.default
                 }
                 action_serializer = ActionSerializer(data=data)
@@ -167,9 +169,9 @@ class ActionListApiView(APIView):
         match_ids = strToArr(match_ids_req[0])
         if default_actions_req:
             default_action_param = json.loads(default_actions_req.lower())
-            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).order_by('created_at')
+            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).order_by('updated_at')
         else:
-            actions = Action.objects.filter(match__id__in=match_ids).order_by('created_at')
+            actions = Action.objects.filter(match__id__in=match_ids).order_by('updated_at')
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -243,17 +245,15 @@ class TabTypeListApiView(APIView):
 
 class EventListApiView(APIView):
     def get(self, request, *args, **kwargs):
-        match_id = request.query_params.get('match_id')
-        events = Event.objects.filter(match_id=match_id).select_related('action')
-        print(events)
-        # serializer = EventSerializer(events, many=True)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(True, status=status.HTTP_200_OK)
+        match_id = request.query_params.get('match')
+        events = Event.objects.filter(match_id=match_id)
+        serializer = EventSerializer(events, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         data = {
-            'match': request.data.get('match_id'),
-            'action': request.data.get('action_id'),
+            'match': request.data.get('match'),
+            'action': request.data.get('action'),
             'status': "PUBLISHED",
             'updated_by': request.user.pk,
             'disabled': False

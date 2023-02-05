@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Action
-        fields = ['id','name','key', 'color', 'match', 'default', 'status', 'updated_at', 'updated_by']
+        fields = ['id','name','key', 'color', 'match', 'default', 'status', 'enabled', 'updated_at', 'updated_by']
 class TabSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tab
@@ -34,4 +34,4 @@ class TabTypeSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['match','action', 'status', 'disabled', 'created_at', 'updated_at', 'updated_by']
+        fields = ['match','action', 'status', 'created_at', 'updated_at', 'updated_by']
