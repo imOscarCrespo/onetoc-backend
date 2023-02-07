@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Tab, TabType, Team, Match, Action, Club
-from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
+from .models import Tab, TabType, Team, Match, Action, Club, Note
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
@@ -255,6 +255,44 @@ class TabTypeListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class NoteListApiView(APIView):
+    def get(self, request, id=False, *args, **kwargs):
+        team_id_req = request.query_params.get('team')
+        if team_id_req:
+            notes = Note.objects.filter(team__id__in=team_id_req).order_by('created_at')
+            serializer = NoteSerializer(notes, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            note = Note.objects.get(id=id)
+            serializer = NoteSerializer(note)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        data = {
+            'name': request.data.get('name'),
+            'team': request.data.get('team'),
+            'description': request.data.get('name'),
+            'status': 'PUBLISHED',
+            'updated_by': request.user.pk
+        }
+        serializer = NoteSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, id, *args, **kwargs):
+        note_to_update = Note.objects.get(id=id)
+        if request.data.get('name'):
+            note_to_update.name = request.data.get('name')
+        if request.data.get('description'):
+            note_to_update.description = request.data.get('description')
+        if request.data.get('status'):
+            note_to_update.status = request.data.get('status')
+        note_to_update.save()
+        return Response(status=status.HTTP_200_OK)
 
 # class EventListApiView(APIView):
 #     def get(self, request, *args, **kwargs):
