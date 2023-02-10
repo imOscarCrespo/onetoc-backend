@@ -101,7 +101,7 @@ class MatchListApiView(APIView):
         team_ids_req = request.query_params.getlist('teams')
         if team_ids_req:
             team_ids = strToArr(team_ids_req[0])
-            match = Match.objects.filter(team__id__in=team_ids).order_by('created_at')
+            match = Match.objects.filter(team__id__in=team_ids, status="PUBLISHED").order_by('created_at')
             serializer = MatchSerializer(match, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
@@ -120,7 +120,8 @@ class MatchListApiView(APIView):
         data = {
             'id': new_id + 1,
             'name': request.data.get('name'), 
-            'timeline': None, 
+            'timeline': None,
+            'status': 'PUBLISHED', 
             'team': request.data.get('team'), # team id
             'media': None, 
             'tab': request.data.get('tab'), # tab id
@@ -129,27 +130,25 @@ class MatchListApiView(APIView):
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, key, name, color, match, created_at, enabled, default, events):
+                def __init__(self, key, name, color, match, enabled, default, events):
                     self.key = key 
                     self.name = name 
                     self.color = color
                     self.match = match
-                    self.created_at = created_at
                     self.enabled = enabled
                     self.default = default
                     self.events = events
             default_buttons = []
-            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1,  True, True, []))
+            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, True, True, []))
+            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, True, True, []))
+            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, True, True, []))
             
             for button in default_buttons:
                 data = {
                     'key': button.key,
                     'name': button.name,
                     'color': button.color,
-                    'created_at': button.created_at,
                     'match': button.match,
                     'enabled': button.enabled,
                     'default': button.default,

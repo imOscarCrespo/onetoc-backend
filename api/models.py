@@ -48,6 +48,7 @@ class Match(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
     finished_at = models.CharField(max_length=200, null=True)
+    status = models.CharField(max_length=30, null=True)
     tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
@@ -59,6 +60,7 @@ class Action(models.Model):
     color = models.CharField(max_length=30)
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     default = models.BooleanField()
+    enabled = models.BooleanField()
     status = models.CharField(max_length=30, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
