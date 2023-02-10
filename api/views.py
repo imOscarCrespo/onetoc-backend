@@ -182,6 +182,7 @@ class ActionListApiView(APIView):
         action_res = Action.objects.get(id=action_id_req)
         has_to_disable = False
         actions_to_disable_once = ['kick_off','first_half','second_half','end']
+        action_res.events = request.data.get('events')
         if action_res.name in actions_to_disable_once:
             has_to_disable = True
         if action_res.name == 'kick_off':
@@ -194,6 +195,7 @@ class ActionListApiView(APIView):
             action_match = Match.objects.get(id=action_res.match.id)
             action_match.finished_at = finished_at
             action_match.save()
+        action_res.events = request.data.get('events')
         if has_to_disable == True:
             action_res.enabled = False
         action_res.save()
@@ -201,19 +203,24 @@ class ActionListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         action_name = request.data.get('name')
-        action_key = re.sub('[^A-Za-z0-9]+', '', action_name)
         data = {
             'name': action_name,
-            'key': action_key,
             'color': request.data.get('color'),
             'match': request.data.get('match'),
-            'status': 'PUBLISHED',
+            'enabled': request.data.get('enabled'),
             'default': request.data.get('default'),
-            'updated_by': request.user.pk
+            'events': []
         }
         serializer = ActionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            # if action_name == 'full_time':
+            #     actions = Action.objects.filter(match__id=request.data.get('match')).values()
+            #     timeline = Timeline(request.data.get('match'), request.user, actions)
+            #     timeline = timeline.generate()
+            #     match = Match.objects.get(id=request.data.get('match'))
+            #     match.timeline = timeline
+            #     match.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
