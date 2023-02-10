@@ -34,4 +34,4 @@ class TabTypeSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['match','action', 'status', 'created_at', 'updated_at', 'updated_by']
+        fields = ['match','action', 'status', 'created_at', 'updated_at', 'updated_by', 'delay']

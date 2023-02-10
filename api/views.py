@@ -247,7 +247,7 @@ class TabTypeListApiView(APIView):
 class EventListApiView(APIView):
     def get(self, request, *args, **kwargs):
         match_id = request.query_params.get('match')
-        events = Event.objects.filter(match_id=match_id)
+        events = Event.objects.filter(match_id=match_id, status="PUBLISHED")
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -256,6 +256,7 @@ class EventListApiView(APIView):
             'match': request.data.get('match'),
             'action': request.data.get('action'),
             'status': "PUBLISHED",
+            'delay': request.data.get('delay') if request.data.get('delay') else 0,
             'updated_by': request.user.pk,
             'disabled': False
         }
@@ -270,8 +271,14 @@ class EventListApiView(APIView):
         event_id = id
         event_to_update = Event.objects.get(id=event_id)
         action_id = request.data.get('action_id')
+        delay = request.data.get('delay')
+        status_code = request.data.get('status')
         if action_id:
             event_to_update.action_id = action_id
+        if delay:
+            event_to_update.delay = delay
+        if status_code:
+            event_to_update.status = status_code
         event_to_update.updated_by = request.user.pk
         event_to_update.save()
         return Response(status=status.HTTP_200_OK)
