@@ -36,7 +36,7 @@ class Tab(models.Model):
     type = models.ForeignKey(TabType, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.order)
+        return "%s %s %s" % (self.id, self.name, self.order)
 
 
 class Match(models.Model):
