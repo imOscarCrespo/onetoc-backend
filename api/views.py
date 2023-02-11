@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from django.middleware.csrf import get_token
 
@@ -6,9 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Team, Match, Action, Club
-from .serializers import ClubSerializer, TeamSerializer, MatchSerializer, ActionSerializer
-from .timeline import Timeline
+from .models import Tab, TabType, Team, Match, Action, Club
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
@@ -120,35 +120,35 @@ class MatchListApiView(APIView):
         data = {
             'id': new_id + 1,
             'name': request.data.get('name'), 
-            'timeline': None, 
+            'timeline': None,
+            'status': 'PUBLISHED', 
             'team': request.data.get('team'), # team id
-            'media': None,
-            'status': 'PUBLISHED' 
+            'media': None, 
+            'tab': request.data.get('tab'), # tab id
         }
         serializer = MatchSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, name, color, match, created_at, enabled, default, events):
+                def __init__(self, key, name, color, match, enabled, default, events):
+                    self.key = key 
                     self.name = name 
                     self.color = color
                     self.match = match
-                    self.created_at = created_at
                     self.enabled = enabled
                     self.default = default
                     self.events = events
             default_buttons = []
-            default_buttons.append( actions('goal', "#5557df", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('kick_off', "#a7df68", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('first_half', "#cbcbcb", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('second_half', "#787878", new_id +1, datetime.datetime.now(), True, True, []))
-            default_buttons.append( actions('end', "#f1ae57", new_id +1, datetime.datetime.now(), True, True, []))
+            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1,  True, True, []))
+            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, True, True, []))
+            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, True, True, []))
+            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, True, True, []))
             
             for button in default_buttons:
                 data = {
+                    'key': button.key,
                     'name': button.name,
                     'color': button.color,
-                    'created_at': button.created_at,
                     'match': button.match,
                     'enabled': button.enabled,
                     'default': button.default,
@@ -162,7 +162,7 @@ class MatchListApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ActionListApiView(APIView):
-
+    
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -224,6 +224,80 @@ class ActionListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TabListApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        tabs = Tab.objects.all().order_by('order')
+        serializer = TabSerializer(tabs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        data = {
+            'name': request.data.get('name'),
+            'icon': request.data.get('name'),
+            'order': request.data.get('order'),
+            'type': request.data.get('type'),
+        }
+        serializer = TabSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TabTypeListApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        tab_types = TabType.objects.all().order_by('created_at')
+        serializer = TabTypeSerializer(tab_types, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        data = {
+            'name': request.data.get('name'),
+        }
+        serializer = TabTypeSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class EventListApiView(APIView):
+#     def get(self, request, *args, **kwargs):
+#         events = Event.objects.all().order_by('created_at')
+#         serializer = EventSerializer(events, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+#     def post(self, request, *args, **kwargs):
+#         data = {
+#             'match': request.data.get('match_id'),
+#             'action': request.data.get('action_id'),
+#             'status': "PUBLISHED",
+#             'updated_by': request.user.pk,
+#             'disabled': False
+#         }
+#         serializer = EventSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#     def patch(self, request, id, *args, **kwargs):
+        event_id = id
+        event_to_update = Event.objects.get(id=event_id)
+        color = request.data.get('color')
+        disabled = request.data.get('disabled')
+        action_id = request.data.get('action_id')
+        if action_id:
+            event_to_update.action_id = action_id
+        if color:
+            event_to_update.color = color
+        if disabled:
+            event_to_update.disabled = disabled
+        event_to_update.updated_by = request.user.pk
+        event_to_update.save()
+        return Response(status=status.HTTP_200_OK)
 
 class TimelineListApiView(APIView):
 
