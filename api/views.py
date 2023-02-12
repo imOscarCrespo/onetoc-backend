@@ -100,7 +100,7 @@ class MatchListApiView(APIView):
         team_ids_req = request.query_params.getlist('teams')
         if team_ids_req:
             team_ids = strToArr(team_ids_req[0])
-            match = Match.objects.filter(team__id__in=team_ids).order_by('created_at')
+            match = Match.objects.filter(team__id__in=team_ids, status="PUBLISHED").order_by('created_at')
             serializer = MatchSerializer(match, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
@@ -119,7 +119,8 @@ class MatchListApiView(APIView):
         data = {
             'id': new_id + 1,
             'name': request.data.get('name'), 
-            'timeline': None, 
+            'timeline': None,
+            'status': 'PUBLISHED', 
             'team': request.data.get('team'), # team id
             'media': None, 
             'tab': request.data.get('tab'), # tab id
@@ -128,7 +129,7 @@ class MatchListApiView(APIView):
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, name, key, color, match, status, enabled, default):
+                def __init__(self, key, name, color, match, enabled, default, events):
                     self.key = key 
                     self.name = name 
                     self.color = color
@@ -137,10 +138,10 @@ class MatchListApiView(APIView):
                     self.enabled = enabled
                     self.default = default
             default_buttons = []
-            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, "PUBLISHED", True, True))
-            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, "PUBLISHED", True, True))
-            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, "PUBLISHED", True, True))
-            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, "PUBLISHED", True, True))
+            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1,  True, True, []))
+            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, True, True, []))
+            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, True, True, []))
+            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, True, True, []))
             
             for button in default_buttons:
                 data = {
@@ -180,6 +181,7 @@ class ActionListApiView(APIView):
         action_res = Action.objects.get(id=action_id_req)
         has_to_disable = False
         actions_to_disable_once = ['kick_off','first_half','second_half','end']
+        action_res.events = request.data.get('events')
         if action_res.name in actions_to_disable_once:
             has_to_disable = True
         if action_res.name == 'kick_off':
@@ -192,6 +194,7 @@ class ActionListApiView(APIView):
             action_match = Match.objects.get(id=action_res.match.id)
             action_match.finished_at = finished_at
             action_match.save()
+        action_res.events = request.data.get('events')
         if has_to_disable == True:
             action_res.enabled = False
         action_res.save()
@@ -202,6 +205,13 @@ class ActionListApiView(APIView):
         serializer = create_action(action_name, request.data.get('color'),request.data.get('match'), request.data.get('default'), request.user.pk )
         if serializer.is_valid():
             serializer.save()
+            # if action_name == 'full_time':
+            #     actions = Action.objects.filter(match__id=request.data.get('match')).values()
+            #     timeline = Timeline(request.data.get('match'), request.user, actions)
+            #     timeline = timeline.generate()
+            #     match = Match.objects.get(id=request.data.get('match'))
+            #     match.timeline = timeline
+            #     match.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

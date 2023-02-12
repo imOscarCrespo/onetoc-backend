@@ -10,7 +10,8 @@ def create_action(action_name, color, match, is_default, user):
             'match': match,
             'status': 'PUBLISHED',
             'default': is_default,
-            'updated_by': user
+            'updated_by': user,
+            'enabled': True
         }
     serializer = ActionSerializer(data=data)
     return serializer
