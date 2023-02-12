@@ -62,9 +62,10 @@ class Action(models.Model):
     default = models.BooleanField()
     enabled = models.BooleanField()
     status = models.CharField(max_length=30, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
-    events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True)
+    events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)

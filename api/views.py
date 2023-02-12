@@ -11,7 +11,8 @@ from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamS
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
-import json, datetime
+import json
+from datetime import datetime
 from django.core.exceptions import PermissionDenied
 
 def stringToInt(str):
@@ -129,7 +130,7 @@ class MatchListApiView(APIView):
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, key, name, color, match, enabled, default, events):
+                def __init__(self, key, name, color, match, status, enabled, default, events):
                     self.key = key 
                     self.name = name 
                     self.color = color
@@ -137,11 +138,12 @@ class MatchListApiView(APIView):
                     self.status = status
                     self.enabled = enabled
                     self.default = default
+                    self.events = events
             default_buttons = []
-            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1,  True, True, []))
-            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, True, True, []))
-            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, True, True, []))
-            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, True, True, []))
+            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, 'PUBLISHED',  True, True, None))
+            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, 'PUBLISHED', True, True, None))
+            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, 'PUBLISHED', True, True, None))
+            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, 'PUBLISHED', True, True, None))
             
             for button in default_buttons:
                 data = {
@@ -151,14 +153,28 @@ class MatchListApiView(APIView):
                     'match': button.match,
                     'status': button.status,
                     'enabled': button.enabled,
-                    'default': button.default
+                    'default': button.default,
+                    'events': button.events,
+                    'updated_by': request.user.pk,
                 }
                 action_serializer = ActionSerializer(data=data)
+                print('holaa', data)
                 if action_serializer.is_valid():
                     action_serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self, request, id, *args, **kwargs):
+        match_id_req = id
+        match_res = Match.objects.get(id=match_id_req)
+        started_at = request.data.get('started')
+        finished_at = request.data.get('finished')
+        if started_at:
+            match_res.started_at = datetime.now()
+        if finished_at:
+            match_res.finished_at = datetime.now()
+        match_res.save()
+        return Response(status=status.HTTP_200_OK)
 
 class ActionListApiView(APIView):
     
@@ -179,24 +195,27 @@ class ActionListApiView(APIView):
     def patch(self, request, id, *args, **kwargs):
         action_id_req = id
         action_res = Action.objects.get(id=action_id_req)
-        has_to_disable = False
-        actions_to_disable_once = ['kick_off','first_half','second_half','end']
+        enabled_req = request.data.get('enabled')
+        # has_to_disable = False
+        # actions_to_disable_once = ['kick_off','first_half','second_half','end']
         action_res.events = request.data.get('events')
-        if action_res.name in actions_to_disable_once:
-            has_to_disable = True
-        if action_res.name == 'kick_off':
-            action_match = Match.objects.get(id=action_res.match.id)
-            started_at = action_res.events[0]
-            action_match.started_at = started_at
-            action_match.save()
-        elif action_res.name == 'end':
-            finished_at = action_res.events[0]
-            action_match = Match.objects.get(id=action_res.match.id)
-            action_match.finished_at = finished_at
-            action_match.save()
-        action_res.events = request.data.get('events')
-        if has_to_disable == True:
-            action_res.enabled = False
+        # if action_res.name in actions_to_disable_once:
+        #     has_to_disable = True
+        if enabled_req:
+            action_res.enabled = enabled_req
+        # if action_res.name == 'kick_off':
+        #     action_match = Match.objects.get(id=action_res.match.id)
+        #     started_at = action_res.events[0]
+        #     action_match.started_at = started_at
+        #     action_match.save()
+        # elif action_res.name == 'end':
+        #     finished_at = action_res.events[0]
+        #     action_match = Match.objects.get(id=action_res.match.id)
+        #     action_match.finished_at = finished_at
+        #     action_match.save()
+        # action_res.events = request.data.get('events')
+        # if has_to_disable == True:
+        #     action_res.enabled = False
         action_res.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -284,7 +303,7 @@ class EventListApiView(APIView):
         delay = request.data.get('delay')
         status_code = request.data.get('status')
         if action_id:
-            event_to_update.action_id = action_id
+            event_to_update.action = action_id
         if delay:
             event_to_update.delay = delay
         if status_code:
