@@ -36,10 +36,8 @@ class LogoutView(APIView):
     def post(self, request):
         try:
             refresh_token = request.data["refresh_token"]
-            print('hey')
             token = RefreshToken(refresh_token)
             token.blacklist()
-            print('hey')
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -158,11 +156,10 @@ class MatchListApiView(APIView):
                     'updated_by': request.user.pk,
                 }
                 action_serializer = ActionSerializer(data=data)
-                print('holaa', data)
                 if action_serializer.is_valid():
                     action_serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, id, *args, **kwargs):
         match_id_req = id
@@ -201,7 +198,7 @@ class ActionListApiView(APIView):
         action_res.events = request.data.get('events')
         # if action_res.name in actions_to_disable_once:
         #     has_to_disable = True
-        if enabled_req:
+        if enabled_req is not None:
             action_res.enabled = enabled_req
         # if action_res.name == 'kick_off':
         #     action_match = Match.objects.get(id=action_res.match.id)
