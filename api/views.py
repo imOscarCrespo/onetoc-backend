@@ -129,7 +129,7 @@ class MatchListApiView(APIView):
         if serializer.is_valid():
             serializer.save()
             class actions: 
-                def __init__(self, key, name, color, match, status, enabled, default, events):
+                def __init__(self, name, key, color, match, status, enabled, default, events):
                     self.key = key 
                     self.name = name 
                     self.color = color
