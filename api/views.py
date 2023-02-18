@@ -97,9 +97,10 @@ class MatchListApiView(APIView):
 
     def get(self, request, id=False, *args, **kwargs):
         team_ids_req = request.query_params.getlist('teams')
+        tab_req = request.query_params.get('tab')
         if team_ids_req:
             team_ids = strToArr(team_ids_req[0])
-            match = Match.objects.filter(team__id__in=team_ids, status="PUBLISHED").order_by('created_at')
+            match = Match.objects.filter(team__id__in=team_ids, status="PUBLISHED", tab=tab_req).order_by('created_at')
             serializer = MatchSerializer(match, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
