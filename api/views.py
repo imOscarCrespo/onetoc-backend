@@ -138,6 +138,7 @@ class MatchListApiView(APIView):
                     self.enabled = enabled
                     self.default = default
                     self.events = events
+                    self.status = "PUBLISHED"
             default_buttons = []
             default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1,  True, True, []))
             default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, True, True, []))
@@ -152,6 +153,7 @@ class MatchListApiView(APIView):
                     'match': button.match,
                     'enabled': button.enabled,
                     'default': button.default,
+                    'status': button.status,
                     'events': []
                 }
                 action_serializer = ActionSerializer(data=data)
