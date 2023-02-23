@@ -36,18 +36,19 @@ class Tab(models.Model):
     type = models.ForeignKey(TabType, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.order)
+        return "%s %s %s" % (self.id, self.name, self.order)
 
 
 class Match(models.Model):
     name = models.CharField(max_length=30)
-    timeline = models.URLField(max_length = 200, null=True)
+    timeline = models.URLField(max_length = 200, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete = models.CASCADE)
-    media = models.URLField(max_length = 200, null=True)
+    media = models.URLField(max_length = 200, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
     finished_at = models.CharField(max_length=200, null=True)
+    status = models.CharField(max_length=30, null=True)
     tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
@@ -59,10 +60,12 @@ class Action(models.Model):
     color = models.CharField(max_length=30)
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     default = models.BooleanField()
+    enabled = models.BooleanField()
     status = models.CharField(max_length=30, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+    events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)
