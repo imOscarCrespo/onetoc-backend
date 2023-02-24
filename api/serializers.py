@@ -24,7 +24,7 @@ class ActionSerializer(serializers.ModelSerializer):
         model = Action
         fields = ['id','name','key', 'color', 'match','enabled','events', 'default', 'status', 'updated_at', 'updated_by', 'created_at']
 class TabSerializer(serializers.ModelSerializer):
-    tabtype_name = serializers.CharField(source='type.name', read_only=True)
+    tabType = serializers.CharField(source='type.name', read_only=True)
     class Meta:
         model = Tab
         fields = ['id', 'name','icon','order','type', 'tabType']
