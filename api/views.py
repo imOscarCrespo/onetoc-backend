@@ -118,7 +118,6 @@ class MatchListApiView(APIView):
             match = Match.objects.filter(**query_data).order_by('created_at')
             serializer = MatchSerializer(match, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-            
 
     def post(self, request, *args, **kwargs):
         try:
