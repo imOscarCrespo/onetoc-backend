@@ -98,19 +98,26 @@ class MatchListApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, id=False, *args, **kwargs):
-        team_ids_req = request.query_params.getlist('teams')
-        if team_ids_req:
-            team_ids = strToArr(team_ids_req[0])
-            match = Match.objects.filter(team__id__in=team_ids, status="PUBLISHED").order_by('created_at')
-            serializer = MatchSerializer(match, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
+        if id:
             match = get_match_by_id(id,request.user)
             if match is not False:
                 serializer = MatchSerializer(match)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 raise PermissionDenied()
+        else:
+            query_data={}
+            query_data['status'] = 'PUBLISHED'
+            team_ids_req = request.query_params.getlist('teams')
+            tab_id = request.query_params.get('tab')
+            if team_ids_req is not None:
+                team_ids = strToArr(team_ids_req[0])
+                query_data['team__id__in'] = team_ids
+            if tab_id is not None:
+                query_data['tab__id'] = tab_id
+            match = Match.objects.filter(**query_data).order_by('created_at')
+            serializer = MatchSerializer(match, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         try:
