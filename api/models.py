@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from enumfields import EnumField
+
+from api.websocket import Websocket_status
 
 # Create your models here
 
@@ -69,6 +72,17 @@ class Action(models.Model):
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)
+
+class Websocket(models.Model):
+    match = models.ForeignKey(Match, on_delete = models.CASCADE)
+    connection = models.CharField(max_length=30)
+    status = EnumField(Websocket_status, default=Websocket_status.OPENED)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(User, on_delete = models.CASCADE)
+
+    def __str__(self):
+        return "%s %s %s" % (self.connection, self.match, self.status)
         
 # class Event(models.Model):
 #     match = models.ForeignKey(Match, on_delete = models.CASCADE)
