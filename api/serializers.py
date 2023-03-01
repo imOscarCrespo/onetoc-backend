@@ -33,9 +33,10 @@ class TabTypeSerializer(serializers.ModelSerializer):
         model = Tab
         fields = ['name']
 class NoteSerializer(serializers.ModelSerializer):
+    updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
     class Meta:
         model = Note
-        fields = ['id','name','team', 'description', 'status', 'updated_at', 'updated_by', 'created_at']
+        fields = ['id','name','team', 'description', 'status', 'updated_at', 'created_at', 'updated_by', 'updated_by_name']
 # class EventSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Event
