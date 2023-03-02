@@ -273,21 +273,25 @@ class TabTypeListApiView(APIView):
 
 class NoteListApiView(APIView):
     def get(self, request, id=False, *args, **kwargs):
-        team_id_req = request.query_params.get('team')
-        if team_id_req:
-            notes = Note.objects.filter(team__id__in=team_id_req).order_by('created_at')
-            serializer = NoteSerializer(notes, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            note = Note.objects.get(id=id)
-            serializer = NoteSerializer(note)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        team_ids_req = request.query_params.getlist('teams')
+        tab_id = request.query_params.get('tab')
+        query_data={}
+        query_data['status'] = 'PUBLISHED'
+        if tab_id is not None:
+            query_data['tab__id'] = tab_id
+        if team_ids_req is not None:
+            team_ids = strToArr(team_ids_req[0])
+            query_data['team__id__in'] = team_ids
+        notes = Note.objects.filter(team__id__in=team_ids_req).order_by('created_at')
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def post(self, request, *args, **kwargs):
         data = {
             'name': request.data.get('name'),
             'team': request.data.get('team'),
-            'description': request.data.get('name'),
+            'description': request.data.get('description'),
             'status': 'PUBLISHED',
             'updated_by': request.user.pk
         }
