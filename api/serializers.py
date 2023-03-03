@@ -36,7 +36,7 @@ class NoteSerializer(serializers.ModelSerializer):
     updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
     class Meta:
         model = Note
-        fields = ['id','name','team', 'description', 'status', 'updated_at', 'created_at', 'updated_by', 'updated_by_name']
+        fields = ['id','name','team', 'description', 'status', 'updated_at', 'created_at', 'updated_by', 'updated_by_name', 'tab']
 # class EventSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Event

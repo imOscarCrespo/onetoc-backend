@@ -78,6 +78,7 @@ class Note(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+    tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.id, self.team.id)
