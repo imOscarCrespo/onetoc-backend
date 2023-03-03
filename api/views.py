@@ -295,6 +295,7 @@ class NoteListApiView(APIView):
         data = {
             'name': request.data.get('name'),
             'team': request.data.get('team'),
+            'tab': request.data.get('tab'),
             'description': request.data.get('description'),
             'status': 'PUBLISHED',
             'updated_by': request.user.pk
