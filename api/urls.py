@@ -8,7 +8,8 @@ from .views import (
     TeamListApiView,
     TimelineListApiView,
     CsrfApiView,
-    LogoutView
+    LogoutView,
+    WebsocketApiView
 )
 
 urlpatterns = [
@@ -18,6 +19,8 @@ urlpatterns = [
     path('action', ActionListApiView.as_view()),
     path('tab', TabListApiView.as_view()),
     path('tabType', TabListApiView.as_view()),
+    path('websocket', WebsocketApiView.as_view()),
+    re_path('websocket/(?P<id>\d+)', WebsocketApiView.as_view(), name='websocket'),
     # path('event', EventListApiView.as_view()),
     re_path('action/(?P<id>\d+)', ActionListApiView.as_view(), name='action'),
     re_path('match/(?P<id>\d+)', MatchListApiView.as_view(), name='match_by_id'),

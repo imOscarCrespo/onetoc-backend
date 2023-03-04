@@ -1,7 +1,24 @@
 # todo/todo_api/serializers.py
 from rest_framework import serializers
-from .models import Club, Tab, Team, Match, Action
+
+from api.websocket import Websocket_status
+from .models import Club, Tab, Team, Match, Action, Websocket
 from django.contrib.auth.models import User
+
+class EnumChoiceField(serializers.Field):
+    def __init__(self, enum, **kwargs):
+        self.enum = enum
+        self.choices = [choice.value for choice in self.enum]
+        super(EnumChoiceField, self).__init__(**kwargs)
+
+    def to_representation(self, obj):
+        return obj.value
+
+    def to_internal_value(self, data):
+        try:
+            return self.enum[data]
+        except KeyError:
+            self.fail('invalid_choice', input=data)
 
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,6 +48,11 @@ class TabTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tab
         fields = ['name']
+class WebsocketSerializer(serializers.ModelSerializer):
+    status = EnumChoiceField(Websocket_status, default=Websocket_status.OPENED)
+    class Meta:
+        model = Websocket
+        fields = ['id','key','connection', 'updated_at', 'updated_by', 'created_at', 'match', 'status']
 # class EventSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Event

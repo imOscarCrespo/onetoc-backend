@@ -7,8 +7,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Tab, TabType, Team, Match, Action, Club
-from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer
+
+from api.websocket import Websocket_status
+from .models import Tab, TabType, Team, Match, Action, Club, Websocket
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, WebsocketSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
@@ -239,7 +241,7 @@ class TabListApiView(APIView):
     def post(self, request, *args, **kwargs):
         data = {
             'name': request.data.get('name'),
-            'icon': request.data.get('name'),
+            'icon': request.data.get('icon'),
             'order': request.data.get('order'),
             'type': request.data.get('type'),
         }
@@ -303,6 +305,62 @@ class TabTypeListApiView(APIView):
         event_to_update.updated_by = request.user.pk
         event_to_update.save()
         return Response(status=status.HTTP_200_OK)
+
+class WebsocketApiView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, id=False, *args, **kwargs):
+        if id:
+            websocket = Websocket.objects.get(id=id)
+            print(websocket)
+            if websocket is not False:
+                serializer = WebsocketSerializer(websocket)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                raise PermissionDenied()
+        else:
+            query_data={}
+            websocket_key_req = request.query_params.get('key')
+            websocket_match_req = request.query_params.get('match')
+            if websocket_key_req is not None:
+                query_data['key'] = websocket_key_req
+            if websocket_match_req is not None:
+                query_data['match__id'] = websocket_match_req
+            websocket = Websocket.objects.filter(**query_data).order_by('created_at')
+            serializer = WebsocketSerializer(websocket, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        data = {
+            'connection': request.data.get('connection'),
+            'key': request.data.get('key'),
+            'updated_by': request.user.pk
+        }
+        serializer = WebsocketSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, id, *args, **kwargs):
+        websocket = Websocket.objects.get(id=id)
+        websocket_status = request.data.get('status')
+        websocket_match = request.data.get('match')
+        data = {}
+        if websocket_status and websocket_status not in [member.value for member in Websocket_status]:
+            return Response('Websocket status value is incorrect', status=status.HTTP_400_BAD_REQUEST)
+        if websocket_status in [member.value for member in Websocket_status]:
+            websocket.status = websocket_status
+            data['status'] = websocket_status
+        if websocket_match is not None:
+            match = Match.objects.get(id=id)
+            websocket.match = match
+            data['match'] = websocket_match
+        websocket.save()
+        return Response(data,status=status.HTTP_200_OK)
+        
 
 class TimelineListApiView(APIView):
 
