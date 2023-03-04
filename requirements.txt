@@ -13,3 +13,4 @@ sqlparse==0.4.3
 urllib3==1.26.12
 django-cors-headers==3.13.0
 djangorestframework-simplejwt==5.2.1
+django-enumfields==2.1.1
