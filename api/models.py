@@ -74,7 +74,8 @@ class Action(models.Model):
         return "%s %s %s" % (self.name, self.match, self.id)
 
 class Websocket(models.Model):
-    match = models.ForeignKey(Match, on_delete = models.CASCADE)
+    match = models.ForeignKey(Match, on_delete = models.CASCADE, null=True)
+    key = models.CharField(max_length=30, unique=True)
     connection = models.CharField(max_length=30)
     status = EnumField(Websocket_status, default=Websocket_status.OPENED)
     created_at = models.DateTimeField(auto_now_add=True)
