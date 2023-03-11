@@ -168,6 +168,16 @@ class MatchListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def patch(self, request, id, *args, **kwargs):
+        match = Match.objects.get(id=id)
+        media_url = request.data.get('media')
+        data = {}
+        if media_url is not None:
+            match.media = media_url
+            data['media'] = media_url
+        match.save()
+        return Response(data,status=status.HTTP_200_OK)
+
 class ActionListApiView(APIView):
     
     permission_classes = (IsAuthenticated,)
