@@ -1,12 +1,8 @@
 # todo/todo_api/serializers.py
 from rest_framework import serializers
-<<<<<<< HEAD
 
 from api.websocket import Websocket_status
-from .models import Club, Tab, Team, Match, Action, Websocket
-=======
-from .models import Club, Tab, Team, Match, Action, Event
->>>>>>> feature/new_event_logic
+from .models import Club, Tab, Team, Match, Action, Websocket, Event
 from django.contrib.auth.models import User
 
 class EnumChoiceField(serializers.Field):
