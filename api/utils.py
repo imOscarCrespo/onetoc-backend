@@ -7,8 +7,6 @@ def get_match_by_id(id, user):
     user_team_names = []
     for team in user_teams_query:
         user_team_names.append(team.name)
-    print(user_match.name)
-    print(user_team_names)
     if match_team.name in user_team_names:
         return user_match
     else:

@@ -68,7 +68,7 @@ class Action(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
-    events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True)
+    events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True, null=True)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)
@@ -85,13 +85,14 @@ class Websocket(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.connection, self.match, self.status)
         
-# class Event(models.Model):
-#     match = models.ForeignKey(Match, on_delete = models.CASCADE)
-#     action = models.ForeignKey(Action, on_delete = models.CASCADE)
-#     status = models.CharField(max_length=30, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now_add=True)
-#     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+class Event(models.Model):
+    match = models.ForeignKey(Match, on_delete = models.CASCADE)
+    action = models.ForeignKey(Action, on_delete = models.CASCADE)
+    status = models.CharField(max_length=30, null=True)
+    delay = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
 
-#     def __str__(self):
-#         return "%s %s" % (self.match.id, self.action.id)
+    def __str__(self):
+        return "%s %s %s" % (self.match.id, self.action.id, self.id)

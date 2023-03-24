@@ -1,8 +1,12 @@
 # todo/todo_api/serializers.py
 from rest_framework import serializers
+<<<<<<< HEAD
 
 from api.websocket import Websocket_status
 from .models import Club, Tab, Team, Match, Action, Websocket
+=======
+from .models import Club, Tab, Team, Match, Action, Event
+>>>>>>> feature/new_event_logic
 from django.contrib.auth.models import User
 
 class EnumChoiceField(serializers.Field):
@@ -31,7 +35,7 @@ class TeamSerializer(serializers.ModelSerializer):
 class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
-        fields = ['id', 'name', 'timeline', 'team', 'tab', 'media', 'status', 'created_at', 'started_at', 'finished_at']
+        fields = ['id', 'name', 'timeline', 'team', 'media', 'status', 'tab', 'created_at', 'started_at', 'finished_at']
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -53,7 +57,7 @@ class WebsocketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Websocket
         fields = ['id','key','connection', 'updated_at', 'updated_by', 'created_at', 'match', 'status']
-# class EventSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Event
-#         fields = ['match','action', 'status', 'disabled', 'created_at', 'updated_at', 'updated_by']
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['id','match','action', 'status', 'created_at', 'updated_at', 'updated_by', 'delay']
