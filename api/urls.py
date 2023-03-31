@@ -9,7 +9,8 @@ from .views import (
     TimelineListApiView,
     CsrfApiView,
     LogoutView,
-    WebsocketApiView
+    WebsocketApiView,
+    RegisterApiView
 )
 
 urlpatterns = [
@@ -27,5 +28,6 @@ urlpatterns = [
     re_path('event/(?P<id>\d+)', EventListApiView.as_view(), name='event_by_match_id'),
     path('timeline', TimelineListApiView.as_view()),
     path('csrf', CsrfApiView.as_view()),
-    path('logout', LogoutView.as_view())
+    path('logout', LogoutView.as_view()),
+    path('register', RegisterApiView.as_view()),
 ]

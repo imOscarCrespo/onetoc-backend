@@ -112,7 +112,7 @@ else:
             'USER': 'admin',
             'PASSWORD': 'admin',
             'HOST': 'localhost',
-            'PORT': '5432'  
+            'PORT': '5432'
         } 
     }
     ALLOWED_HOSTS = ["*"]    

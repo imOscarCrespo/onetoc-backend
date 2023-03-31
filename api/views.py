@@ -9,7 +9,8 @@ from rest_framework import permissions
 
 from api.websocket import Websocket_status
 from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event
-from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, WebsocketSerializer, EventSerializer
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
+    ActionSerializer, WebsocketSerializer, EventSerializer, UserSerializer, RegisterSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
@@ -17,13 +18,16 @@ import json
 from datetime import datetime
 from django.core.exceptions import PermissionDenied
 
+
 def stringToInt(str):
     return int(str)
+
 
 def strToArr(str):
     arr = str.split(',')
     new = map(stringToInt, arr)
     return list(new)
+
 
 class CsrfApiView(APIView):
 
@@ -33,8 +37,10 @@ class CsrfApiView(APIView):
         '''
         return Response({'csrfToken': get_token(request)}, status=status.HTTP_200_OK)
 
+
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         try:
             refresh_token = request.data["refresh_token"]
@@ -44,8 +50,8 @@ class LogoutView(APIView):
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class ClubListApiView(APIView):
 
+class ClubListApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -53,15 +59,17 @@ class ClubListApiView(APIView):
         List all the club items for given requested user
         '''
         teams_query = Team.objects.filter(users__username=request.user)
+
         def return_club(team):
             return team.club
+
         clubs = map(return_club, teams_query)
         serializer = ClubSerializer(clubs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         data = {
-            'name': request.data.get('name'), 
+            'name': request.data.get('name'),
         }
         serializer = ClubSerializer(data=data)
         if serializer.is_valid():
@@ -70,8 +78,8 @@ class ClubListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class TeamListApiView(APIView):
 
+class TeamListApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -93,20 +101,20 @@ class TeamListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class MatchListApiView(APIView):
 
+class MatchListApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, id=False, *args, **kwargs):
         if id:
-            match = get_match_by_id(id,request.user)
+            match = get_match_by_id(id, request.user)
             if match is not False:
                 serializer = MatchSerializer(match)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 raise PermissionDenied()
         else:
-            query_data={}
+            query_data = {}
             query_data['status'] = 'PUBLISHED'
             team_ids_req = request.query_params.getlist('teams')
             tab_id = request.query_params.get('tab')
@@ -126,32 +134,36 @@ class MatchListApiView(APIView):
             new_id = 0
         data = {
             'id': new_id + 1,
-            'name': request.data.get('name'), 
+            'name': request.data.get('name'),
             'timeline': None,
-            'status': 'PUBLISHED', 
-            'team': request.data.get('team'), # team id
-            'media': None, 
-            'tab': request.data.get('tab'), # tab id
+            'status': 'PUBLISHED',
+            'team': request.data.get('team'),  # team id
+            'media': None,
+            'tab': request.data.get('tab'),  # tab id
         }
         serializer = MatchSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            class actions: 
+
+            class actions:
                 def __init__(self, name, key, color, match, status, enabled, default, events):
-                    self.key = key 
-                    self.name = name 
+                    self.key = key
+                    self.name = name
                     self.color = color
                     self.match = match
                     self.status = status
                     self.enabled = enabled
                     self.default = default
                     self.events = events
+
             default_buttons = []
-            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, 'PUBLISHED',  True, True, None))
-            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, 'PUBLISHED', True, True, None))
-            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, 'PUBLISHED', True, True, None))
-            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, 'PUBLISHED', True, True, None))
-            
+            default_buttons.append(actions('Inicio', 'kick_off', "#a7df68", new_id + 1, 'PUBLISHED', True, True, None))
+            default_buttons.append(
+                actions('1 Parte', 'first_half', "#cbcbcb", new_id + 1, 'PUBLISHED', True, True, None))
+            default_buttons.append(
+                actions('2 Parte', 'second_half', "#787878", new_id + 1, 'PUBLISHED', True, True, None))
+            default_buttons.append(actions('Final', 'end', "#f1ae57", new_id + 1, 'PUBLISHED', True, True, None))
+
             for button in default_buttons:
                 data = {
                     'key': button.key,
@@ -186,10 +198,10 @@ class MatchListApiView(APIView):
             match.finished_at = datetime.now()
             data['finished_at'] = datetime.now()
         match.save()
-        return Response(data,status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
+
 
 class ActionListApiView(APIView):
-    
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -198,12 +210,13 @@ class ActionListApiView(APIView):
         match_ids = strToArr(match_ids_req[0])
         if default_actions_req:
             default_action_param = json.loads(default_actions_req.lower())
-            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).order_by('updated_at')
+            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).order_by(
+                'updated_at')
         else:
             actions = Action.objects.filter(match__id__in=match_ids).order_by('updated_at')
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def patch(self, request, id, *args, **kwargs):
         action_id_req = id
         action_res = Action.objects.get(id=action_id_req)
@@ -233,7 +246,8 @@ class ActionListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         action_name = request.data.get('name')
-        serializer = create_action(action_name, request.data.get('color'),request.data.get('match'), request.data.get('default'), request.user.pk )
+        serializer = create_action(action_name, request.data.get('color'), request.data.get('match'),
+                                   request.data.get('default'), request.user.pk)
         if serializer.is_valid():
             serializer.save()
             # if action_name == 'full_time':
@@ -246,6 +260,7 @@ class ActionListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TabListApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -268,6 +283,7 @@ class TabListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class TabTypeListApiView(APIView):
     def get(self, request, *args, **kwargs):
         tab_types = TabType.objects.all().order_by('created_at')
@@ -284,6 +300,7 @@ class TabTypeListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EventListApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -307,7 +324,7 @@ class EventListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def patch(self, request, id, *args, **kwargs):
         event_id = id
         event_to_update = Event.objects.get(id=event_id)
@@ -324,8 +341,8 @@ class EventListApiView(APIView):
         event_to_update.save()
         return Response(status=status.HTTP_200_OK)
 
-class WebsocketApiView(APIView):
 
+class WebsocketApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, id=False, *args, **kwargs):
@@ -338,7 +355,7 @@ class WebsocketApiView(APIView):
             else:
                 raise PermissionDenied()
         else:
-            query_data={}
+            query_data = {}
             websocket_key_req = request.query_params.get('key')
             websocket_match_req = request.query_params.get('match')
             if websocket_key_req is not None:
@@ -348,7 +365,7 @@ class WebsocketApiView(APIView):
             websocket = Websocket.objects.filter(**query_data).order_by('created_at')
             serializer = WebsocketSerializer(websocket, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, *args, **kwargs):
         data = {
             'connection': request.data.get('connection'),
@@ -361,7 +378,7 @@ class WebsocketApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def patch(self, request, id, *args, **kwargs):
         websocket = Websocket.objects.get(id=id)
         websocket_status = request.data.get('status')
@@ -377,11 +394,10 @@ class WebsocketApiView(APIView):
             websocket.match = match
             data['match'] = websocket_match
         websocket.save()
-        return Response(data,status=status.HTTP_200_OK)
-        
+        return Response(data, status=status.HTTP_200_OK)
+
 
 class TimelineListApiView(APIView):
-
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -390,3 +406,36 @@ class TimelineListApiView(APIView):
         actions = Action.objects.filter(match__id__in=match_ids)
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RegisterApiView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        password2 = request.data.get('repeatedPassword')
+        first_name = request.data.get('firstName')
+        last_name = request.data.get('lastName')
+        data = {
+            'username': username,
+            'password': password,
+            'password2': password2,
+            'email': email,
+            'first_name': first_name,
+            'last_name': last_name
+        }
+        serializer = RegisterSerializer(data=data)
+        attrs = {
+            'password': password,
+            'password2': password2
+        }
+        serializer.validate(attrs)
+        print('validated')
+        if serializer.is_valid():
+            serializer.create(data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('api', '0002_initial'),
+        ('api', '0003_alter_action_events_event'),
     ]
 
     operations = [
