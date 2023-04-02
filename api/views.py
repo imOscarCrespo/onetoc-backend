@@ -89,6 +89,7 @@ class TeamListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         club_name = request.data.get('club_name')
+        print('helloo from view', club_name)
         club = Club.objects.get(name=club_name)
         data = {
             'name': request.data.get('name'),
