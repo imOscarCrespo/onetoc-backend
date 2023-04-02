@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now_add=True)),
                 ('team', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.team')),
+                ('tab', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.tab')),
                 ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),

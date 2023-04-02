@@ -148,12 +148,11 @@ class MatchListApiView(APIView):
                     self.default = default
                     self.events = events
                     self.status = "PUBLISHED"
-            default_buttons = []
-            default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, 'PUBLISHED',  True, True, None))
-            default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, 'PUBLISHED', True, True, None))
-            default_buttons.append( actions('2 Parte', 'second_half', "#787878", new_id +1, 'PUBLISHED', True, True, None))
-            default_buttons.append( actions('Final','end', "#f1ae57", new_id +1, 'PUBLISHED', True, True, None))
-            
+            default_buttons = [actions('Inicio', 'kick_off', "#a7df68", new_id + 1, 'PUBLISHED', True, True, None),
+                               actions('1 Parte', 'first_half', "#cbcbcb", new_id + 1, 'PUBLISHED', True, True, None),
+                               actions('2 Parte', 'second_half', "#787878", new_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Final', 'end', "#f1ae57", new_id + 1, 'PUBLISHED', True, True, None)]
+
             for button in default_buttons:
                 data = {
                     'key': button.key,
@@ -381,6 +380,52 @@ class WebsocketApiView(APIView):
         websocket.save()
         return Response(data,status=status.HTTP_200_OK)
 
+
+class NoteListApiView(APIView):
+    def get(self, request, id=False, *args, **kwargs):
+        team_id_req = request.query_params.get('team')
+        tab_id = request.query_params.get('tab')
+        if id:
+            note = Note.objects.get(id=id)
+            serializer = NoteSerializer(note)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            query_data = {}
+            query_data['status'] = 'PUBLISHED'
+            if tab_id is not None:
+                query_data['tab__id'] = tab_id
+            if team_id_req is not None:
+                query_data['team__id'] = team_id_req
+            notes = Note.objects.filter(**query_data).order_by('created_at')
+            serializer = NoteSerializer(notes, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        data = {
+            'name': request.data.get('name'),
+            'team': request.data.get('team'),
+            'tab': request.data.get('tab'),
+            'description': request.data.get('description'),
+            'status': 'PUBLISHED',
+            'updated_by': request.user.pk
+        }
+        serializer = NoteSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, id, *args, **kwargs):
+        note_to_update = Note.objects.get(id=id)
+        if request.data.get('name'):
+            note_to_update.name = request.data.get('name')
+        if request.data.get('description'):
+            note_to_update.description = request.data.get('description')
+        if request.data.get('status'):
+            note_to_update.status = request.data.get('status')
+        note_to_update.save()
+        return Response(status=status.HTTP_200_OK)
 
 class TimelineListApiView(APIView):
 
