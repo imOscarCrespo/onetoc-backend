@@ -1,5 +1,4 @@
-from .models import Team, Match, Action, Club
-from .serializers import ClubSerializer, TeamSerializer, MatchSerializer, ActionSerializer
+from .models import Team, Match
 def get_match_by_id(id, user):
     user_teams_query = Team.objects.filter(users__username=user)
     user_match = Match.objects.get(id=id)

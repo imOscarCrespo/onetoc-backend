@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from api.websocket import Websocket_status
-from .models import Club, Tab, Team, Match, Action, Websocket, Event
+from .models import Club, Tab, Team, Match, Action, Note, Websocket, Event
 from django.contrib.auth.models import User
 
 class EnumChoiceField(serializers.Field):
@@ -41,9 +41,10 @@ class ActionSerializer(serializers.ModelSerializer):
         model = Action
         fields = ['id','name','key', 'color', 'match','enabled','events', 'default', 'status', 'updated_at', 'updated_by', 'created_at']
 class TabSerializer(serializers.ModelSerializer):
+    tabType = serializers.CharField(source='type.name', read_only=True)
     class Meta:
         model = Tab
-        fields = ['id', 'name','icon','order']
+        fields = ['id', 'name','icon','order','type', 'tabType']
 class TabTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tab
@@ -57,3 +58,12 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id','match','action', 'status', 'created_at', 'updated_at', 'updated_by', 'delay']
+class NoteSerializer(serializers.ModelSerializer):
+    updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
+    class Meta:
+        model = Note
+        fields = ['id','name','team', 'description', 'status', 'updated_at', 'created_at', 'updated_by', 'updated_by_name', 'tab']
+# class EventSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Event
+#         fields = ['match','action', 'status', 'disabled', 'created_at', 'updated_at', 'updated_by']

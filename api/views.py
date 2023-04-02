@@ -10,6 +10,8 @@ from rest_framework import permissions
 from api.websocket import Websocket_status
 from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, WebsocketSerializer, EventSerializer
+from .models import Tab, TabType, Team, Match, Action, Club, Note
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
@@ -142,10 +144,10 @@ class MatchListApiView(APIView):
                     self.name = name 
                     self.color = color
                     self.match = match
-                    self.status = status
                     self.enabled = enabled
                     self.default = default
                     self.events = events
+                    self.status = "PUBLISHED"
             default_buttons = []
             default_buttons.append( actions('Inicio', 'kick_off', "#a7df68", new_id +1, 'PUBLISHED',  True, True, None))
             default_buttons.append( actions('1 Parte', 'first_half', "#cbcbcb", new_id +1, 'PUBLISHED', True, True, None))
@@ -162,7 +164,7 @@ class MatchListApiView(APIView):
                     'enabled': button.enabled,
                     'default': button.default,
                     'events': button.events,
-                    'updated_by': request.user.pk,
+                    'updated_by': request.user.pk
                 }
                 action_serializer = ActionSerializer(data=data)
                 if action_serializer.is_valid():
@@ -348,7 +350,7 @@ class WebsocketApiView(APIView):
             websocket = Websocket.objects.filter(**query_data).order_by('created_at')
             serializer = WebsocketSerializer(websocket, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, *args, **kwargs):
         data = {
             'connection': request.data.get('connection'),
@@ -361,7 +363,7 @@ class WebsocketApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def patch(self, request, id, *args, **kwargs):
         websocket = Websocket.objects.get(id=id)
         websocket_status = request.data.get('status')
@@ -378,7 +380,7 @@ class WebsocketApiView(APIView):
             data['match'] = websocket_match
         websocket.save()
         return Response(data,status=status.HTTP_200_OK)
-        
+
 
 class TimelineListApiView(APIView):
 
