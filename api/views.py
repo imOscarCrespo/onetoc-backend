@@ -89,11 +89,11 @@ class TeamListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         club_name = request.data.get('club_name')
-        print('helloo from view', club_name)
         club = Club.objects.get(name=club_name)
         data = {
             'name': request.data.get('name'),
-            'club': club
+            'club': club.pk
+
         }
         serializer = TeamSerializer(data=data)
         if serializer.is_valid():
@@ -277,11 +277,12 @@ class TabListApiView(APIView):
             'order': request.data.get('order'),
             'type': request.data.get('type'),
         }
+        print('data', data)
         serializer = TabSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        print('serializer error', serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -296,6 +297,7 @@ class TabTypeListApiView(APIView):
             'name': request.data.get('name'),
         }
         serializer = TabTypeSerializer(data=data)
+        print('serializer is valid', serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

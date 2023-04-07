@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from api.websocket import Websocket_status
-from .models import Club, Tab, Team, Match, Action, Websocket, Event
+from .models import Club, Tab, Team, Match, Action, Websocket, Event, TabType
 from django.contrib.auth.models import User
 
 class EnumChoiceField(serializers.Field):
@@ -48,7 +48,7 @@ class TabSerializer(serializers.ModelSerializer):
         fields = ['id', 'name','icon','order']
 class TabTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tab
+        model = TabType
         fields = ['name']
 class WebsocketSerializer(serializers.ModelSerializer):
     status = EnumChoiceField(Websocket_status, default=Websocket_status.OPENED)

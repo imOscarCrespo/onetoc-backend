@@ -10,7 +10,7 @@ from .views import (
     CsrfApiView,
     LogoutView,
     WebsocketApiView,
-    RegisterApiView
+    RegisterApiView, TabTypeListApiView
 )
 
 urlpatterns = [
@@ -19,7 +19,7 @@ urlpatterns = [
     path('match', MatchListApiView.as_view()),
     path('action', ActionListApiView.as_view()),
     path('tab', TabListApiView.as_view()),
-    path('tabType', TabListApiView.as_view()),
+    path('tabType', TabTypeListApiView.as_view()),
     path('websocket', WebsocketApiView.as_view()),
     re_path('websocket/(?P<id>\d+)', WebsocketApiView.as_view(), name='websocket'),
     path('event', EventListApiView.as_view()),

@@ -48,33 +48,33 @@ def test_register_user():
         }
         response = client.post("/team", payload, **headers)
         response_body = json.loads(response.content)
-        print('responsee team', response_body)
     if tab_type_count == 0:
         payload = {
             'name': 'test'
         }
         response = client.post("/tabType", payload, **headers)
         response_body = json.loads(response.content)
-        print('responsee', response_body)
+        print('tab type created', response_body)
     if tab_count == 0:
         tab_type = TabType.objects.get()
-        print('hoola', tab_type)
+        print('tabType', tab_type.id)
         payload = {
             'name': 'test',
             'icon': 'test',
-            'order': 'test',
-            'type': tab_type.id,
+            'order': 1,
+            'type': tab_type.pk,
         }
-        client.post("/tab", payload, **headers)
+        response = client.post("/tab", payload, **headers)
+        print('response', response)
     team = Team.objects.get()
     tab = Tab.objects.get()
     payload = {
         'name': 'test',
-        'timeline': None,
+        'timeline': '',
         'status': 'PUBLISHED',
-        'team': team.id,  # team id
-        'media': None,
-        'tab': tab.id  # tab id
+        'team': team.pk,  # team id
+        'media': '',
+        'tab': tab.pk  # tab id
     }
 
     response = client.post("/match", payload, **headers)
