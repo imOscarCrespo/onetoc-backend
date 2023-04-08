@@ -1,9 +1,11 @@
-import pytest
 from rest_framework.test import APIClient
 
-from api.models import Team, Club, TabType, Tab
+from api.models import Team, Club, TabType, Tab, User
 
 client = APIClient()
+def get_http_headers():
+    return headers
+
 
 def return_user_access_token():
     register_payload = {
@@ -23,51 +25,51 @@ def return_user_access_token():
     return response.data['access']
 
 
-@pytest.mark.django_db
-def test_register_user():
-    access_token = return_user_access_token()
+access_token = return_user_access_token()
+
+headers = {'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+
+
+def create_or_get_club():
     club_count = Club.objects.count()
-    team_count = Team.objects.count()
-    tab_count = Tab.objects.count()
-    tab_type_count = TabType.objects.count()
-    headers = {'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
     if club_count == 0:
         payload = {
             'name': 'test'
         }
         client.post("/club", payload, **headers)
+    return Club.objects.get()
+
+
+def create_or_get_team():
+    team_count = Team.objects.count()
     if team_count == 0:
-        club = Club.objects.get()
         payload = {
             'name': 'test',
             'club_name': 'test'
         }
         client.post("/team", payload, **headers)
+    return Team.objects.get()
+
+
+def create_or_get_tab_type():
+    tab_type_count = TabType.objects.count()
     if tab_type_count == 0:
         payload = {
             'name': 'test'
         }
-        response = client.post("/tabType", payload, **headers)
+        client.post("/tabType", payload, **headers)
+    return TabType.objects.get()
+
+
+def create_or_get_tab():
+    tab_count = Tab.objects.count()
     if tab_count == 0:
-        tab_type = TabType.objects.get()
+        tab_type = create_or_get_tab_type()
         payload = {
             'name': 'test',
             'icon': 'test',
             'order': 1,
             'type': tab_type.pk,
         }
-        response = client.post("/tab", payload, **headers)
-    team = Team.objects.get()
-    tab = Tab.objects.get()
-    payload = {
-        'name': 'test',
-        'timeline': '',
-        'status': 'PUBLISHED',
-        'team': team.pk,  # team id
-        'media': '',
-        'tab': tab.pk  # tab id
-    }
-
-    response = client.post("/match", payload, **headers)
-    data = response.data
-    assert data["name"] == payload["name"]
+        client.post("/tab", payload, **headers)
+    return Tab.objects.get()
