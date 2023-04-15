@@ -436,9 +436,7 @@ class RegisterApiView(APIView):
             'password2': password2
         }
         serializer.validate(attrs)
-        print('validated')
         if serializer.is_valid():
             serializer.create(data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
