@@ -18,6 +18,7 @@ from .utils import get_match_by_id
 import json
 from datetime import datetime
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 
 def stringToInt(str):
     return int(str)
@@ -181,11 +182,11 @@ class MatchListApiView(APIView):
             match.media = media_url
             data['media'] = media_url
         if started_at:
-            match.started_at = datetime.now()
-            data['started_at'] = datetime.now()
+            match.started_at = timezone.now()
+            data['started_at'] = timezone.now()
         if finished_at:
-            match.finished_at = datetime.now()
-            data['finished_at'] = datetime.now()
+            match.finished_at = timezone.now()
+            data['finished_at'] = timezone.now()
         match.save()
         return Response(data,status=status.HTTP_200_OK)
 
