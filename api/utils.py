@@ -1,7 +1,9 @@
 from .models import Team, Match
-def get_match_by_id(id, user):
+
+
+def get_match_by_id(match_id, user):
     user_teams_query = Team.objects.filter(users__username=user)
-    user_match = Match.objects.get(id=id)
+    user_match = Match.objects.get(id=match_id)
     match_team = user_match.team
     user_team_names = []
     for team in user_teams_query:
@@ -10,3 +12,4 @@ def get_match_by_id(id, user):
         return user_match
     else:
         return False
+
