@@ -8,8 +8,9 @@ from rest_framework import status
 from rest_framework import permissions
 
 from api.websocket import Websocket_status
-from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event
-from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, WebsocketSerializer, EventSerializer
+from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
+from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
+    ActionSerializer, WebsocketSerializer, EventSerializer
 from .models import Tab, TabType, Team, Match, Action, Club, Note
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -64,7 +65,7 @@ class ClubListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = {
-            'name': request.data.get('name'), 
+            'name': request.data.get('name'),
         }
         serializer = ClubSerializer(data=data)
         if serializer.is_valid():
@@ -129,20 +130,20 @@ class MatchListApiView(APIView):
             new_id = 0
         data = {
             'id': new_id + 1,
-            'name': request.data.get('name'), 
+            'name': request.data.get('name'),
             'timeline': None,
-            'status': 'PUBLISHED', 
+            'status': 'PUBLISHED',
             'team': request.data.get('team'), # team id
-            'media': None, 
+            'media': None,
             'tab': request.data.get('tab'), # tab id
         }
         serializer = MatchSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            class actions: 
+            class actions:
                 def __init__(self, name, key, color, match, status, enabled, default, events):
-                    self.key = key 
-                    self.name = name 
+                    self.key = key
+                    self.name = name
                     self.color = color
                     self.match = match
                     self.enabled = enabled
@@ -191,7 +192,7 @@ class MatchListApiView(APIView):
         return Response(data,status=status.HTTP_200_OK)
 
 class ActionListApiView(APIView):
-    
+
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -309,7 +310,7 @@ class EventListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def patch(self, request, id, *args, **kwargs):
         event_id = id
         event_to_update = Event.objects.get(id=event_id)
@@ -322,7 +323,7 @@ class EventListApiView(APIView):
             event_to_update.delay = delay
         if status_code:
             event_to_update.status = status_code
-        event_to_update.updated_by = request.user.pk
+        event_to_update.updated_by = User.objects.get(id=request.user.pk)
         event_to_update.save()
         return Response(status=status.HTTP_200_OK)
 
