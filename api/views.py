@@ -9,6 +9,7 @@ from rest_framework import permissions
 
 from api.websocket import Websocket_status
 from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
+from .request_utils.paginator import paginate
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
     ActionSerializer, WebsocketSerializer, EventSerializer
 from .models import Tab, TabType, Team, Match, Action, Club, Note
@@ -19,6 +20,7 @@ from .utils import get_match_by_id
 import json
 from datetime import datetime
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.utils import timezone
 from api.match_modes import Match_modes
 
@@ -112,17 +114,20 @@ class MatchListApiView(APIView):
                 raise PermissionDenied()
         else:
             query_data={}
-            query_data['status'] = 'PUBLISHED'
             team_ids_req = request.query_params.getlist('teams')
             tab_id = request.query_params.get('tab')
+            skip = request.query_params.get('skip')
             if team_ids_req is not None:
                 team_ids = strToArr(team_ids_req[0])
                 query_data['team__id__in'] = team_ids
             if tab_id is not None:
                 query_data['tab__id'] = tab_id
-            match = Match.objects.filter(**query_data).order_by('created_at')
-            serializer = MatchSerializer(match, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            match = Match.objects.filter(**query_data).order_by('-created_at').exclude(status='DELETED')
+            page_records = paginate(match, skip)
+            serializer = MatchSerializer(page_records, many=True)
+            response = Response(serializer.data, status=status.HTTP_200_OK)
+            response['x-total'] = match.count()
+            return response
 
     def post(self, request, *args, **kwargs):
         try:
