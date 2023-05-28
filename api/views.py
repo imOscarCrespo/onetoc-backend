@@ -297,7 +297,7 @@ class TabTypeListApiView(APIView):
 class EventListApiView(APIView):
     def get(self, request, *args, **kwargs):
         match_id = request.query_params.get('match')
-        events = Event.objects.filter(match_id=match_id, status="PUBLISHED")
+        events = Event.objects.filter(match_id=match_id).exclude(status='DELETED')
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
