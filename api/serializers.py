@@ -2,6 +2,7 @@
 from rest_framework import serializers
 
 from api.websocket import Websocket_status
+from api.match_modes import Match_modes
 from .models import Club, Tab, Team, Match, Action, Note, Websocket, Event
 from django.contrib.auth.models import User
 
@@ -29,9 +30,10 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = ['id', 'name', 'club']
 class MatchSerializer(serializers.ModelSerializer):
+    mode = EnumChoiceField(Match_modes, default=Match_modes.LIVE)
     class Meta:
         model = Match
-        fields = ['id', 'name', 'timeline', 'team', 'media', 'status', 'tab', 'created_at', 'started_at', 'finished_at']
+        fields = ['id', 'name', 'timeline', 'team', 'media', 'status', 'tab', 'created_at', 'started_at', 'finished_at', 'mode']
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

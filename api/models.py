@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from enumfields import EnumField
 
 from api.websocket import Websocket_status
+from api.match_modes import Match_modes
 
 # Create your models here
 
@@ -53,6 +54,7 @@ class Match(models.Model):
     finished_at = models.CharField(max_length=200, null=True)
     status = models.CharField(max_length=30, null=True)
     tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
+    mode = EnumField(Match_modes, default=Match_modes.LIVE)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.team.name, self.id)

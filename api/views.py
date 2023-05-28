@@ -20,6 +20,7 @@ import json
 from datetime import datetime
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from api.match_modes import Match_modes
 
 def stringToInt(str):
     return int(str)
@@ -178,6 +179,7 @@ class MatchListApiView(APIView):
         media_url = request.data.get('media')
         started_at = request.data.get('started')
         finished_at = request.data.get('finished')
+        mode = request.data.get('mode')
         data = {}
         if media_url is not None:
             match.media = media_url
@@ -188,6 +190,10 @@ class MatchListApiView(APIView):
         if finished_at:
             match.finished_at = timezone.now()
             data['finished_at'] = timezone.now()
+            match.mode = Match_modes.HISTORY
+        if mode:
+            match.mode = mode
+            data['mode'] = mode
         match.save()
         return Response(data,status=status.HTTP_200_OK)
 
