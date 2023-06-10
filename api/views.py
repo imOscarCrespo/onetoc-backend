@@ -322,20 +322,29 @@ class EventListApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, id, *args, **kwargs):
+    def patch(self, request, id=None, *args, **kwargs):
         event_id = id
-        event_to_update = Event.objects.get(id=event_id)
-        action_id = request.data.get('action_id')
-        delay = request.data.get('delay')
-        status_code = request.data.get('status')
-        if action_id:
-            event_to_update.action = action_id
-        if delay:
-            event_to_update.delay = delay
-        if status_code:
-            event_to_update.status = status_code
-        event_to_update.updated_by = User.objects.get(id=request.user.pk)
-        event_to_update.save()
+        if event_id:
+            event_to_update = Event.objects.get(id=event_id)
+            action_id = request.data.get('action_id')
+            delay = request.data.get('delay')
+            status_code = request.data.get('status')
+            if action_id:
+                event_to_update.action = action_id
+            if delay:
+                event_to_update.delay = delay
+            if status_code:
+                event_to_update.status = status_code
+            event_to_update.updated_by = User.objects.get(id=request.user.pk)
+            event_to_update.save()
+        else:
+            props_to_update = request.data.get('update')
+            ids_to_update = request.data.get('ids')
+            events_to_update = Event.objects.filter(id__in=ids_to_update)
+            for event in events_to_update:
+                for key, value in props_to_update.items():
+                    setattr(event, key, value)
+                event.save()
         return Response(status=status.HTTP_200_OK)
 
 class WebsocketApiView(APIView):
