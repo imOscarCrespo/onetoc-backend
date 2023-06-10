@@ -117,11 +117,14 @@ class MatchListApiView(APIView):
             team_ids_req = request.query_params.getlist('teams')
             tab_id = request.query_params.get('tab')
             skip = request.query_params.get('skip')
-            if team_ids_req is not None:
+            text_search = request.query_params.get('textSearch')
+            if team_ids_req:
                 team_ids = strToArr(team_ids_req[0])
                 query_data['team__id__in'] = team_ids
             if tab_id is not None:
                 query_data['tab__id'] = tab_id
+            if text_search is not None:
+                query_data['name__icontains'] = text_search
             match = Match.objects.filter(**query_data).order_by('-created_at').exclude(status='DELETED')
             page_records = paginate(match, skip)
             serializer = MatchSerializer(page_records, many=True)
