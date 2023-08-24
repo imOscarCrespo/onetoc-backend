@@ -313,6 +313,7 @@ class EventListApiView(APIView):
         data = {
             'match': request.data.get('match'),
             'action': request.data.get('action'),
+            'created_at': request.data.get('createdAt') if request.data.get('createdAt') else datetime.now(),
             'status': "PUBLISHED",
             'delay': request.data.get('delay') if request.data.get('delay') else 0,
             'updated_by': request.user.pk,

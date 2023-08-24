@@ -105,7 +105,7 @@ class Event(models.Model):
     action = models.ForeignKey(Action, on_delete = models.CASCADE)
     status = models.CharField(max_length=30, null=True)
     delay = models.FloatField(null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
 
