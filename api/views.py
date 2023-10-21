@@ -18,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import get_match_by_id
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.utils import timezone
@@ -313,7 +313,7 @@ class EventListApiView(APIView):
         data = {
             'match': request.data.get('match'),
             'action': request.data.get('action'),
-            'created_at': request.data.get('createdAt') - timedelta(seconds=5) if request.data.get('createdAt') else datetime.now() - timedelta(seconds=5),
+            'created_at': request.data.get('createdAt') if request.data.get('createdAt') else datetime.now(),
             'status': "PUBLISHED",
             'delay': request.data.get('delay') if request.data.get('delay') else 0,
             'updated_by': request.user.pk,
