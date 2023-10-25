@@ -368,10 +368,13 @@ class WebsocketApiView(APIView):
             query_data={}
             websocket_key_req = request.query_params.get('key')
             websocket_match_req = request.query_params.get('match')
+            websocket_connection_req = request.query_params.get('connection')
             if websocket_key_req is not None:
                 query_data['key'] = websocket_key_req
             if websocket_match_req is not None:
                 query_data['match__id'] = websocket_match_req
+            if websocket_connection_req is not None:
+                query_data['connection'] = websocket_connection_req
             websocket = Websocket.objects.filter(**query_data).order_by('created_at')
             serializer = WebsocketSerializer(websocket, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
