@@ -403,7 +403,7 @@ class WebsocketApiView(APIView):
             websocket.status = websocket_status
             data['status'] = websocket_status
         if websocket_match is not None:
-            match = Match.objects.get(id=id)
+            match = Match.objects.get(id=websocket_match)
             websocket.match = match
             data['match'] = websocket_match
         websocket.save()
