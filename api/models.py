@@ -12,6 +12,7 @@ class Club(models.Model):
     name = models.CharField(max_length=30, unique= True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
 
     def __str__(self):
         return self.name
@@ -20,16 +21,26 @@ class Team(models.Model):
     name = models.CharField(max_length=30)
     club = models.ForeignKey(Club, on_delete = models.CASCADE)
     users = models.ManyToManyField(User)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.club, self.users)
+    
+    def delete(self, user):
+        self.status = 'DELETED'
+        self.save()
 
 class TabType(models.Model):
     name = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
 
     def __str__(self):
         return "%s" % (self.name)
+    
+    def delete(self):
+        self.status = 'DELETED'
+        self.save()
 
 class Tab(models.Model):
     name = models.CharField(max_length=30)
@@ -38,9 +49,14 @@ class Tab(models.Model):
     team = models.ForeignKey(Team, on_delete = models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.ForeignKey(TabType, on_delete = models.CASCADE, null=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
 
     def __str__(self):
         return "%s %s %s" % (self.id, self.name, self.order)
+    
+    def delete(self):
+        self.status = 'DELETED'
+        self.save() 
 
 
 class Match(models.Model):
@@ -52,12 +68,16 @@ class Match(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
     finished_at = models.CharField(max_length=200, null=True)
-    status = models.CharField(max_length=30, null=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
     tab = models.ForeignKey(Tab, on_delete = models.CASCADE, null=True)
     mode = EnumField(Match_modes, default=Match_modes.LIVE)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.team.name, self.id)
+    
+    def delete(self):
+        self.status = 'DELETED'
+        self.save()
 
 class Action(models.Model):
     name = models.CharField(max_length=30)
@@ -66,7 +86,7 @@ class Action(models.Model):
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     default = models.BooleanField()
     enabled = models.BooleanField()
-    status = models.CharField(max_length=30, null=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
@@ -74,6 +94,10 @@ class Action(models.Model):
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)
+    
+    def delete(self):
+        self.status = 'DELETED'
+        self.save()
 
 class Websocket(models.Model):
     match = models.ForeignKey(Match, on_delete = models.CASCADE, null=True)
@@ -91,7 +115,7 @@ class Note(models.Model):
     name = models.CharField(max_length=30)
     description = models.TextField(null=True)
     team = models.ForeignKey(Team, on_delete = models.CASCADE, null=True)
-    status = models.CharField(max_length=30, null=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
@@ -99,11 +123,15 @@ class Note(models.Model):
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.id, self.team.id)
+    
+    def delete(self):
+        self.status = 'DELETED'
+        self.save()
 
 class Event(models.Model):
     match = models.ForeignKey(Match, on_delete = models.CASCADE)
     action = models.ForeignKey(Action, on_delete = models.CASCADE)
-    status = models.CharField(max_length=30, null=True)
+    status = models.CharField(max_length=30, null=True, default='ACTIVE')
     delay = models.FloatField(null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now_add=True)
@@ -111,3 +139,7 @@ class Event(models.Model):
 
     def __str__(self):
         return "%s %s %s" % (self.match.id, self.action.id, self.id)
+    
+    def delete(self):
+        self.status = 'DELETED'
+        self.save()

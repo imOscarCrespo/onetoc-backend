@@ -60,7 +60,7 @@ class ClubListApiView(APIView):
         '''
         List all the club items for given requested user
         '''
-        teams_query = Team.objects.filter(users__username=request.user)
+        teams_query = Team.objects.filter(users__username=request.user).exclude(status='DELETED')
         def return_club(team):
             return team
         clubs = map(return_club, teams_query)
@@ -77,13 +77,18 @@ class ClubListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id, *args, **kwargs):
+        club = Club.objects.get(id=id)
+        club.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class TeamListApiView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        teams = Team.objects.filter(users__username=request.user)
+        teams = Team.objects.filter(users__username=request.user).exclude(status='DELETED')
         serializer = TeamSerializer(teams, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -100,6 +105,11 @@ class TeamListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id, *args, **kwargs):
+        team = Team.objects.get(id=id)
+        team.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class MatchListApiView(APIView):
 
@@ -205,6 +215,11 @@ class MatchListApiView(APIView):
             data['mode'] = mode
         match.save()
         return Response(data,status=status.HTTP_200_OK)
+    
+    def delete(self, request, id, *args, **kwargs):
+        match = Match.objects.get(id=id)
+        match.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class ActionListApiView(APIView):
 
@@ -216,9 +231,9 @@ class ActionListApiView(APIView):
         match_ids = strToArr(match_ids_req[0])
         if default_actions_req:
             default_action_param = json.loads(default_actions_req.lower())
-            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).order_by('updated_at')
+            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).exclude(status='DELETED').order_by('updated_at')
         else:
-            actions = Action.objects.filter(match__id__in=match_ids).order_by('updated_at')
+            actions = Action.objects.filter(match__id__in=match_ids).exclude(status='DELETED').order_by('updated_at')
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -264,11 +279,16 @@ class ActionListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id, *args, **kwargs):
+        action = Action.objects.get(id=id)
+        action.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class TabListApiView(APIView):
     def get(self, request, *args, **kwargs):
         team_id = request.query_params.get('team')
-        tabs = Tab.objects.filter(team=team_id).order_by('order')
+        tabs = Tab.objects.filter(team=team_id).exclude(status='DELETED').order_by('order')
         serializer = TabSerializer(tabs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -285,6 +305,11 @@ class TabListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id, *args, **kwargs):
+        tab = Tab.objects.get(id=id)
+        tab.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class TabTypeListApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -302,6 +327,11 @@ class TabTypeListApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id, *args, **kwargs):
+        tab_type = TabType.objects.get(id=id)
+        tab_type.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class EventListApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -345,11 +375,16 @@ class EventListApiView(APIView):
         else:
             props_to_update = request.data.get('update')
             ids_to_update = request.data.get('ids')
-            events_to_update = Event.objects.filter(id__in=ids_to_update)
+            events_to_update = Event.objects.filter(id__in=ids_to_update).exclude(status='DELETED')
             for event in events_to_update:
                 for key, value in props_to_update.items():
                     setattr(event, key, value)
                 event.save()
+        return Response(status=status.HTTP_200_OK)
+    
+    def delete(self, request, id, *args, **kwargs):
+        event = Event.objects.get(id=id)
+        event.delete()
         return Response(status=status.HTTP_200_OK)
 
 class WebsocketApiView(APIView):
@@ -426,7 +461,7 @@ class NoteListApiView(APIView):
                 query_data['tab__id'] = tab_id
             if team_id_req is not None:
                 query_data['team__id'] = team_id_req
-            notes = Note.objects.filter(**query_data).order_by('created_at')
+            notes = Note.objects.filter(**query_data).exclude(status='DELETED').order_by('created_at')
             serializer = NoteSerializer(notes, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -455,6 +490,11 @@ class NoteListApiView(APIView):
         if request.data.get('status'):
             note_to_update.status = request.data.get('status')
         note_to_update.save()
+        return Response(status=status.HTTP_200_OK)
+    
+    def delete(self, request, id, *args, **kwargs):
+        note = Note.objects.get(id=id)
+        note.delete()
         return Response(status=status.HTTP_200_OK)
 
 class TimelineListApiView(APIView):
