@@ -108,7 +108,7 @@ else:
     DATABASES = {     
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'onetocdb',
+            'NAME': 'onetoc',
             'USER': 'admin',
             'PASSWORD': 'admin',
             'HOST': 'localhost',

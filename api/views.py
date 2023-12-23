@@ -24,6 +24,7 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from api.match_modes import Match_modes
 
+
 def stringToInt(str):
     return int(str)
 
@@ -466,3 +467,14 @@ class TimelineListApiView(APIView):
         actions = Action.objects.filter(match__id__in=match_ids)
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class Permission(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, id=False, *args, **kwargs):
+        perm_list = request.user.get_user_permissions()
+        api_permissions = [perm for perm in perm_list if 'api' in perm]
+        permissions_without_api = [perm.replace('api.', '') for perm in api_permissions]
+
+        return Response(permissions_without_api, status=status.HTTP_200_OK)

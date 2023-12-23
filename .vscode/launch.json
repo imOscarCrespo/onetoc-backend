@@ -5,16 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Onetoc backend",
+            "name": "Django",
             "type": "python",
-            "request": "attach",
-            "port": 5678,
-            "host": "localhost",
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "${workspaceFolder}"
-                }
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "program": "${workspaceRoot}/manage.py",
+            "args": [
+                "runserver",
+                "--no-color",
+                "--noreload"
+            ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput",
+                "DjangoDebugging"
             ]
         }
     ]

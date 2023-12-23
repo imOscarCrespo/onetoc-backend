@@ -10,13 +10,15 @@ from .views import (
     CsrfApiView,
     LogoutView,
     WebsocketApiView,
-    NoteListApiView
+    NoteListApiView,
+    Permission
 )
 
 urlpatterns = [
     path('club', ClubListApiView.as_view()),
     path('team', TeamListApiView.as_view()),
     path('match', MatchListApiView.as_view()),
+    path('permission', Permission.as_view()),
     path('action', ActionListApiView.as_view()),
     path('tab', TabListApiView.as_view()),
     path('tabType', TabListApiView.as_view()),
