@@ -24,7 +24,7 @@ class EnumChoiceField(serializers.Field):
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club
-        fields = ['name']
+        fields = ['id','name']
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team

@@ -62,7 +62,7 @@ class ClubListApiView(APIView):
         '''
         teams_query = Team.objects.filter(users__username=request.user)
         def return_club(team):
-            return team.club
+            return team
         clubs = map(return_club, teams_query)
         serializer = ClubSerializer(clubs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
