@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework import permissions
 
 from api.websocket import Websocket_status
-from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
+from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event, User, UserType
 from .request_utils.paginator import paginate
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
     ActionSerializer, WebsocketSerializer, EventSerializer
@@ -518,3 +518,14 @@ class Permission(APIView):
         permissions_without_api = [perm.replace('api.', '') for perm in api_permissions]
 
         return Response(permissions_without_api, status=status.HTTP_200_OK)
+
+
+class UserApiView:
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        user_id = request.data.query_params('id')
+        userType_relation = UserType.objects.filter(user__id=user_id).exclude(status='DELETED')
+
+

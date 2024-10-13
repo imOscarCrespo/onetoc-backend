@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from .models import Club, Tab, Team, Match, Action, TabType, Note, Event, Websocket
+from .models import Club, Tab, Team, Match, Action, TabType, Note, Event, Websocket, Coach, Player, Analyst, UserType
 
 admin.site.register(Club)
 admin.site.register(Team)
@@ -13,3 +13,7 @@ admin.site.register(TabType)
 admin.site.register(Note)
 admin.site.register(Event)
 admin.site.register(Websocket)
+admin.site.register(Coach)
+admin.site.register(Player)
+admin.site.register(Analyst)
+admin.site.register(UserType)
