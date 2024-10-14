@@ -1,1 +1,1 @@
-web: python manage.py collectstatic && gunicorn onetoc.wsgi
+web: python manage.py collectstatic --noinput && gunicorn onetoc.wsgi
