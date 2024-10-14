@@ -92,6 +92,7 @@ if 'RDS_DB_NAME' in os.environ:
         } 
     }
     ALLOWED_HOSTS = ["*", "https://onetoc-backend-production.up.railway.app"]
+    CSRF_TRUSTED_ORIGINS = ['https://onetoc-backend-production.up.railway.app']
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True    
 else:
@@ -115,7 +116,8 @@ else:
             'PORT': '49886'  
         } 
     }
-    ALLOWED_HOSTS = ["*", "https://onetoc-backend-production.up.railway.app"]    
+    ALLOWED_HOSTS = ["*", "https://onetoc-backend-production.up.railway.app"]
+    CSRF_TRUSTED_ORIGINS = ['https://onetoc-backend-production.up.railway.app']    
     # DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
