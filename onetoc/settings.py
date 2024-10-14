@@ -91,7 +91,7 @@ if 'RDS_DB_NAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],  
         } 
     }
-    ALLOWED_HOSTS = ["*"]
+    ALLOWED_HOSTS = ["*", "https://onetoc-backend-production.up.railway.app"]
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True    
 else:
@@ -108,14 +108,14 @@ else:
     DATABASES = {     
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'onetoc',
-            'USER': 'admin',
-            'PASSWORD': 'admin',
-            'HOST': 'localhost',
-            'PORT': '5432'  
+            'NAME': 'railway',
+            'USER': 'postgres',
+            'PASSWORD': 'pffzyHlcjFKPZWcgRRMMthFDNYGNucsD',
+            'HOST': 'junction.proxy.rlwy.net',
+            'PORT': '49886'  
         } 
     }
-    ALLOWED_HOSTS = ["*"]    
+    ALLOWED_HOSTS = ["*", "https://onetoc-backend-production.up.railway.app"]    
     # DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
