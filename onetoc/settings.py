@@ -82,7 +82,7 @@ if not os.environ.get('DJANGO_PRODUCTION'):
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
-if 'RDS_DB_NAME' in os.environ:
+if 'RDS_NAME' in os.environ:
     DATABASES = {     
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
