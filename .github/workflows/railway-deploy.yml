@@ -1,45 +1,32 @@
-name: Deploy Django Application
+name: Deploy to Railway
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # Clonar el repositorio
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    # Configurar Python
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10' # Usa la misma versión que tu proyecto
+      - name: Use Node 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
 
-    # Instalar dependencias
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install packages
+        run: yarn install --frozen-lockfile
 
-    # Configurar Railway CLI
-    - name: Set up Railway CLI
-      run: |
-        curl -sSL https://raw.githubusercontent.com/railwayapp/cli/main/install.sh | sh
-        railway login --token ${{ secrets.RAILWAY_SERVER }}
+      - name: Run tests
+        run: yarn test
 
-    # Desplegar la aplicación en Railway
-    - name: Deploy to Railway
-      run: railway up
-      env:
-        RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_SERVER }}
+      - name: Install Railway
+        run: npm i -g @railway/cli
 
-    # Aplicar migraciones
-    - name: Apply migrations
-      run: railway run python manage.py migrate
-      env:
-        RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DATABSE }}
+      - name: Deploy
+        run: railway up
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_SERVER }}
