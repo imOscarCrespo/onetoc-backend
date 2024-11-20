@@ -79,6 +79,20 @@ class Match(models.Model):
         self.status = 'DELETED'
         self.save()
 
+class MatchInfo(models.Model):
+    match = models.ForeignKey(Match, on_delete = models.CASCADE, null=True)
+    yellow_card = models.PositiveIntegerField(null=True)
+    yellow_card_oponent = models.PositiveIntegerField(null=True)
+    red_card = models.PositiveIntegerField(null=True)
+    red_card_oponent = models.PositiveIntegerField(null=True)
+    goal = models.PositiveIntegerField(null=True)
+    goal_oponent = models.PositiveIntegerField(null=True)
+    substitution = models.PositiveIntegerField(null=True)
+    substitution_oponent = models.PositiveIntegerField(null=True)
+
+    def __str__(self):
+        return "%s %s %s" % (self.name, self.team.name, self.id)
+
 class Action(models.Model):
     name = models.CharField(max_length=30)
     key = models.CharField(max_length=30, null=True)

@@ -3,6 +3,7 @@ from .views import (
     ActionListApiView,
     ClubListApiView,
     EventListApiView,
+    MatchInfoListApiView,
     MatchListApiView,
     TabListApiView,
     TeamListApiView,
@@ -17,7 +18,10 @@ from .views import (
 urlpatterns = [
     path('club', ClubListApiView.as_view()),
     path('team', TeamListApiView.as_view()),
+    re_path('team/(?P<id>\d+)', TeamListApiView.as_view(), name='team_by_id'),
     path('match', MatchListApiView.as_view()),
+    path('matchInfo', MatchInfoListApiView.as_view()),
+    re_path('matchInfo/(?P<id>\d+)', MatchInfoListApiView.as_view(), name='match_info_by_id'),
     path('permission', Permission.as_view()),
     path('action', ActionListApiView.as_view()),
     path('tab', TabListApiView.as_view()),

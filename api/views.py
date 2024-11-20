@@ -8,9 +8,9 @@ from rest_framework import status
 from rest_framework import permissions
 
 from api.websocket import Websocket_status
-from .models import Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
+from .models import MatchInfo, Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
 from .request_utils.paginator import paginate
-from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
+from .serializers import ClubSerializer, MatchInfoSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
     ActionSerializer, WebsocketSerializer, EventSerializer
 from .models import Tab, TabType, Team, Match, Action, Club, Note
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, NoteSerializer
@@ -145,17 +145,16 @@ class MatchListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            new_id = (Match.objects.last()).id
+            new_match_id = (Match.objects.last()).id
         except:
-            new_id = 0
+            new_match_id = 0
         data = {
-            'id': new_id + 1,
+            'id': new_match_id + 1,
             'name': request.data.get('name'),
             'timeline': None,
             'status': 'PUBLISHED',
             'team': request.data.get('team'), # team id
             'media': None,
-            'tab': request.data.get('tab'), # tab id
         }
         serializer = MatchSerializer(data=data)
         if serializer.is_valid():
@@ -170,10 +169,10 @@ class MatchListApiView(APIView):
                     self.default = default
                     self.events = events
                     self.status = "PUBLISHED"
-            default_buttons = [actions('Inicio', 'kick_off', "#a7df68", new_id + 1, 'PUBLISHED', True, True, None),
-                               actions('1 Parte', 'first_half', "#cbcbcb", new_id + 1, 'PUBLISHED', True, True, None),
-                               actions('2 Parte', 'second_half', "#787878", new_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Final', 'end', "#f1ae57", new_id + 1, 'PUBLISHED', True, True, None)]
+            default_buttons = [actions('Inicio', 'kick_off', "#a7df68", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('1 Parte', 'first_half', "#cbcbcb", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('2 Parte', 'second_half', "#787878", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Final', 'end', "#f1ae57", new_match_id + 1, 'PUBLISHED', True, True, None)]
 
             for button in default_buttons:
                 data = {
@@ -190,6 +189,26 @@ class MatchListApiView(APIView):
                 action_serializer = ActionSerializer(data=data)
                 if action_serializer.is_valid():
                     action_serializer.save()
+            try:
+                new_match_info_id = (MatchInfo.objects.last()).id
+            except:
+                new_match_info_id = 0
+
+            match_info_data = {
+                'id': new_match_info_id + 1,
+                'match': new_match_id + 1,
+                'yellow_card': 0,
+                'yellow_card_oponent': 0,
+                'red_card': 0,
+                'red_card_oponent': 0,
+                'goal': 0,
+                'goal_oponent': 0,
+                'substitution': 0,
+                'substitution_oponent': 0,
+            }
+            serializer = MatchInfoSerializer(data=match_info_data)
+            if serializer.is_valid():
+                serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -219,6 +238,68 @@ class MatchListApiView(APIView):
     def delete(self, request, id, *args, **kwargs):
         match = Match.objects.get(id=id)
         match.delete()
+        return Response(status=status.HTTP_200_OK)
+    
+class MatchInfoListApiView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, id=False, *args, **kwargs):
+        match_info = MatchInfo.objects.filter(id=id)
+        serializer = MatchInfoSerializer(match_info, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            new_id = (Match.objects.last()).id
+        except:
+            new_id = 0
+
+        data = {
+            'id': new_id + 1,
+            'match': request.data.get('match'),
+            'yellow_card': request.data.get('yellow_card'),
+            'yellow_card_oponent': request.data.get('yellow_card_oponent'),
+            'red_card': request.data.get('red_card'),
+            'red_card_oponent': request.data.get('red_card_oponent'),
+            'goal': request.data.get('goal'),
+            'goal_oponent': request.data.get('goal_oponent'),
+            'substitution': request.data.get('substitution'),
+            'substitution_oponent': request.data.get('substitution_oponent'),
+        }
+        serializer = MatchInfoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def patch(self, request, id, *args, **kwargs):
+        match = Match.objects.get(id=id)
+        match_info = MatchInfo.objects.get(match=match)
+        data = {}
+        
+        # Only update fields that are present in the request
+        fields = [
+            'yellow_card', 'yellow_card_oponent', 
+            'red_card', 'red_card_oponent',
+            'goal', 'goal_oponent',
+            'substitution', 'substitution_oponent'
+        ]
+        
+        for field in fields:
+            if field in request.data:
+                value = request.data.get(field)
+                setattr(match_info, field, value)
+                data[field] = value
+                
+        match_info.save()
+        return Response(data, status=status.HTTP_200_OK)
+    
+    
+    def delete(self, request, id, *args, **kwargs):
+        match_info = MatchInfo.objects.get(id=id)
+        match_info.delete()
         return Response(status=status.HTTP_200_OK)
 
 class ActionListApiView(APIView):
