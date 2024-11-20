@@ -108,27 +108,27 @@ else:
     #         'PORT': '5432'  
     #     } 
     # }
-    DATABASES = {     
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'railway',
-            'USER': 'postgres',
-            'PASSWORD': 'pffzyHlcjFKPZWcgRRMMthFDNYGNucsD',
-            'HOST': 'junction.proxy.rlwy.net',
-            'PORT': '49886'  
-        } 
-    }
-
-    # DATABASES = {
+    # DATABASES = {     
     #     'default': {
     #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #         'NAME': 'onetocdb',           # Your database name
-    #         'USER': 'oscar',         # Your PostgreSQL username
-    #         'PASSWORD': 'postgres', # Your PostgreSQL password
-    #         'HOST': 'localhost',        # Since it's running locally
-    #         'PORT': '5432'             # Default PostgreSQL port
-    #     }
+    #         'NAME': 'railway',
+    #         'USER': 'postgres',
+    #         'PASSWORD': 'pffzyHlcjFKPZWcgRRMMthFDNYGNucsD',
+    #         'HOST': 'junction.proxy.rlwy.net',
+    #         'PORT': '49886'  
+    #     } 
     # }
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'onetocdb',           # Your database name
+            'USER': 'oscar',         # Your PostgreSQL username
+            'PASSWORD': 'postgres', # Your PostgreSQL password
+            'HOST': 'localhost',        # Since it's running locally
+            'PORT': '5432'             # Default PostgreSQL port
+        }
+    }
     ALLOWED_HOSTS = ["*", "https://onetoc-backend-production.up.railway.app"]
     CSRF_TRUSTED_ORIGINS = ['https://onetoc-backend-production.up.railway.app']    
     # DATABASES = {
