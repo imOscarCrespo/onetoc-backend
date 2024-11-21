@@ -1,7 +1,7 @@
 import re
 from api.serializers import ActionSerializer
 
-def create_action(name, color, match, team, is_default, user):
+def create_action(name, color, match, team, default, user_id):
     action_key = re.sub('[^A-Za-z0-9]+', '', name)
     data = {
             'name': name,
@@ -10,8 +10,8 @@ def create_action(name, color, match, team, is_default, user):
             'match': match,
             'team': team,
             'status': 'PUBLISHED',
-            'default': is_default,
-            'updated_by': user,
+            'default': default,
+            'updated_by': user_id,
             'enabled': True
         }
     serializer = ActionSerializer(data=data)
