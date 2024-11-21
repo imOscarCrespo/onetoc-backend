@@ -170,10 +170,18 @@ class MatchListApiView(APIView):
                     self.default = default
                     self.events = events
                     self.status = "PUBLISHED"
-            default_buttons = [actions('Inicio', 'kick_off', "#a7df68", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('1 Parte', 'first_half', "#cbcbcb", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('2 Parte', 'second_half', "#787878", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Final', 'end', "#f1ae57", new_match_id + 1, 'PUBLISHED', True, True, None)]
+            default_buttons = [actions('automatic', 'automatic', "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Substitution', 'substitution', "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Substitution Oponent', 'substitution_oponent', "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Yellow card', 'yellow_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Yellow card Oponent', 'yellow_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Red card', 'red_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Red card Oponent', 'red_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Goal', 'goal',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Goal oponent', 'goal_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Corner', 'corner',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               actions('Corner oponent', 'corner_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+                               ]
 
             for button in default_buttons:
                 data = {
