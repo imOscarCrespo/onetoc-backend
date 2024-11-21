@@ -2,6 +2,7 @@ from enum import Enum
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from enumfields import EnumField
 
 from api.websocket import Websocket_status
@@ -100,14 +101,24 @@ class Action(models.Model):
     name = models.CharField(max_length=30)
     key = models.CharField(max_length=30, null=True)
     color = models.CharField(max_length=30)
-    match = models.ForeignKey(Match, on_delete = models.CASCADE)
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, null=True, blank=True)  # Hacemos opcional el match
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)    # Añadimos team opcional
     default = models.BooleanField()
     enabled = models.BooleanField()
     status = models.CharField(max_length=30, null=True, default='ACTIVE')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     events = ArrayField(base_field=models.CharField(max_length=200, null=True), default=list, blank=True, null=True)
+
+    def clean(self):
+        # Validamos que tenga o bien team o bien match, pero no ambos o ninguno
+        if (self.team is None and self.match is None) or (self.team is not None and self.match is not None):
+            raise ValidationError('Action debe estar asociada a un team O a un match, no a ambos o a ninguno')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return "%s %s %s" % (self.name, self.match, self.id)

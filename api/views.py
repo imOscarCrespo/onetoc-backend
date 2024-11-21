@@ -320,12 +320,20 @@ class ActionListApiView(APIView):
     def get(self, request, *args, **kwargs):
         match_ids_req = request.query_params.getlist('matches')
         default_actions_req = request.query_params.get('default')
+        team_id = request.query_params.get('team')
+        
         match_ids = strToArr(match_ids_req[0])
+        query_filters = {'match__id__in': match_ids}
+        
+        # Add team filter if team_id is provided
+        if team_id:
+            query_filters['match__team_id'] = team_id
+        
         if default_actions_req:
             default_action_param = json.loads(default_actions_req.lower())
-            actions = Action.objects.filter(match__id__in=match_ids, default=default_action_param).exclude(status='DELETED').order_by('updated_at')
-        else:
-            actions = Action.objects.filter(match__id__in=match_ids).exclude(status='DELETED').order_by('updated_at')
+            query_filters['default'] = default_action_param
+        
+        actions = Action.objects.filter(**query_filters).exclude(status='DELETED').order_by('updated_at')
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -357,17 +365,18 @@ class ActionListApiView(APIView):
         return Response(status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        action_name = request.data.get('name')
-        serializer = create_action(action_name, request.data.get('color'),request.data.get('match'), request.data.get('default'), request.user.pk )
+        action_data = {
+            'name': request.data.get('name'),
+            'color': request.data.get('color'),
+            'match': request.data.get('match'),
+            'default': request.data.get('default'),
+            'user_id': request.user.pk
+        }
+        
+        serializer = create_action(**action_data)
+        
         if serializer.is_valid():
             serializer.save()
-            # if action_name == 'full_time':
-            #     actions = Action.objects.filter(match__id=request.data.get('match')).values()
-            #     timeline = Timeline(request.data.get('match'), request.user, actions)
-            #     timeline = timeline.generate()
-            #     match = Match.objects.get(id=request.data.get('match'))
-            #     match.timeline = timeline
-            #     match.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
