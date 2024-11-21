@@ -170,17 +170,17 @@ class MatchListApiView(APIView):
                     self.default = default
                     self.events = events
                     self.status = "PUBLISHED"
-            default_buttons = [actions('automatic', 'automatic', "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Substitution', 'substitution', "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Substitution Oponent', 'substitution_oponent', "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Yellow card', 'yellow_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Yellow card Oponent', 'yellow_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Red card', 'red_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Red card Oponent', 'red_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Goal', 'goal',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Goal oponent', 'goal_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Corner', 'corner',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
-                               actions('Corner oponent', 'corner_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, True, None),
+            default_buttons = [actions('automatic', 'automatic', "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Substitution', 'substitution', "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Substitution Oponent', 'substitution_oponent', "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Yellow card', 'yellow_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Yellow card Oponent', 'yellow_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Red card', 'red_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Red card Oponent', 'red_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Goal', 'goal',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Goal oponent', 'goal_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Corner', 'corner',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
+                               actions('Corner oponent', 'corner_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
                                ]
 
             for button in default_buttons:
@@ -254,8 +254,9 @@ class MatchInfoListApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, id=False, *args, **kwargs):
-        match_info = MatchInfo.objects.filter(id=id)
-        serializer = MatchInfoSerializer(match_info, many=True)
+        match_id = request.query_params.get('match')
+        match_info = MatchInfo.objects.get(match=match_id)
+        serializer = MatchInfoSerializer(match_info)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
