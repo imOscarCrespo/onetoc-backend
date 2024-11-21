@@ -167,15 +167,15 @@ class MatchListApiView(APIView):
             default_buttons = [
                 {'name': 'automatic', 'key': 'automatic'},
                 {'name': 'Substitution', 'key': 'substitution'},
-                {'name': 'Substitution Oponent', 'key': 'substitution_oponent'},
+                {'name': 'Substitution Oponent', 'key': 'substitution_opponent'},
                 {'name': 'Yellow card', 'key': 'yellow_card'},
-                {'name': 'Yellow card Oponent', 'key': 'yellow_card_oponent'},
+                {'name': 'Yellow card Oponent', 'key': 'yellow_card_opponent'},
                 {'name': 'Red card', 'key': 'red_card'},
-                {'name': 'Red card Oponent', 'key': 'red_card_oponent'},
+                {'name': 'Red card Oponent', 'key': 'red_card_opponent'},
                 {'name': 'Goal', 'key': 'goal'},
-                {'name': 'Goal oponent', 'key': 'goal_oponent'},
+                {'name': 'Goal oponent', 'key': 'goal_opponent'},
                 {'name': 'Corner', 'key': 'corner'},
-                {'name': 'Corner oponent', 'key': 'corner_oponent'},
+                {'name': 'Corner oponent', 'key': 'corner_opponent'},
             ]
 
             for button in default_buttons:
@@ -202,13 +202,13 @@ class MatchListApiView(APIView):
             match_info_data = {
                 'match': match.id,  # Use the actual match instance ID
                 'yellow_card': 0,
-                'yellow_card_oponent': 0,
+                'yellow_card_opponent': 0,
                 'red_card': 0,
-                'red_card_oponent': 0,
+                'red_card_opponent': 0,
                 'goal': 0,
-                'goal_oponent': 0,
+                'goal_opponent': 0,
                 'substitution': 0,
-                'substitution_oponent': 0,
+                'substitution_opponent': 0,
             }
             
             match_info_serializer = MatchInfoSerializer(data=match_info_data)
@@ -270,13 +270,13 @@ class MatchInfoListApiView(APIView):
             'id': new_id + 1,
             'match': request.data.get('match'),
             'yellow_card': request.data.get('yellow_card'),
-            'yellow_card_oponent': request.data.get('yellow_card_oponent'),
+            'yellow_card_opponent': request.data.get('yellow_card_opponent'),
             'red_card': request.data.get('red_card'),
-            'red_card_oponent': request.data.get('red_card_oponent'),
+            'red_card_opponent': request.data.get('red_card_opponent'),
             'goal': request.data.get('goal'),
-            'goal_oponent': request.data.get('goal_oponent'),
+            'goal_opponent': request.data.get('goal_opponent'),
             'substitution': request.data.get('substitution'),
-            'substitution_oponent': request.data.get('substitution_oponent'),
+            'substitution_opponent': request.data.get('substitution_opponent'),
         }
         serializer = MatchInfoSerializer(data=data)
         if serializer.is_valid():
@@ -291,10 +291,11 @@ class MatchInfoListApiView(APIView):
         
         # Only update fields that are present in the request
         fields = [
-            'yellow_card', 'yellow_card_oponent', 
-            'red_card', 'red_card_oponent',
-            'goal', 'goal_oponent',
-            'substitution', 'substitution_oponent'
+            'yellow_card', 'yellow_card_opponent', 
+            'red_card', 'red_card_opponent',
+            'goal', 'goal_opponent',
+            'substitution', 'substitution_opponent',
+            'corner', 'substitution_opponent'
         ]
         
         for field in fields:

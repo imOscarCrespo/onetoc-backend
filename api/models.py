@@ -83,13 +83,15 @@ class Match(models.Model):
 class MatchInfo(models.Model):
     match = models.ForeignKey(Match, on_delete = models.CASCADE, null=True)
     yellow_card = models.PositiveIntegerField(null=True)
-    yellow_card_oponent = models.PositiveIntegerField(null=True)
+    yellow_card_opponent = models.PositiveIntegerField(null=True)
     red_card = models.PositiveIntegerField(null=True)
-    red_card_oponent = models.PositiveIntegerField(null=True)
+    red_card_opponent = models.PositiveIntegerField(null=True)
     goal = models.PositiveIntegerField(null=True)
-    goal_oponent = models.PositiveIntegerField(null=True)
+    goal_opponent = models.PositiveIntegerField(null=True)
     substitution = models.PositiveIntegerField(null=True)
-    substitution_oponent = models.PositiveIntegerField(null=True)
+    substitution_opponent = models.PositiveIntegerField(null=True)
+    corner = models.PositiveIntegerField(null=True)
+    corner_opponent = models.PositiveIntegerField(null=True)
 
     def __str__(self):
         return "%s %s" % (self.match, self.id)

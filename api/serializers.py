@@ -37,7 +37,7 @@ class MatchSerializer(serializers.ModelSerializer):
 class MatchInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = MatchInfo
-        fields = ['id', 'yellow_card', 'yellow_card_oponent', 'red_card', 'red_card_oponent', 'goal', 'goal_oponent', 'substitution', 'substitution_oponent', 'match']
+        fields = ['id', 'yellow_card', 'yellow_card_opponent', 'red_card', 'red_card_opponent', 'goal', 'goal_opponent', 'substitution', 'substitution_opponent','corner', 'corner_opponent', 'match']
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
