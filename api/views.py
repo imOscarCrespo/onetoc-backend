@@ -286,8 +286,7 @@ class MatchInfoListApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def patch(self, request, id, *args, **kwargs):
-        match = Match.objects.get(id=id)
-        match_info = MatchInfo.objects.get(match=match)
+        match_info = MatchInfo.objects.get(id=id)
         data = {}
         
         # Only update fields that are present in the request
