@@ -146,66 +146,61 @@ class MatchListApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            new_match_id = (Match.objects.last()).id
+            new_match_id = Match.objects.last().id + 1
         except:
-            new_match_id = 0
+            new_match_id = 1  # Start with ID 1 if no matches exist
+        
         data = {
-            'id': new_match_id + 1,
+            'id': new_match_id,
             'name': request.data.get('name'),
             'timeline': None,
             'status': 'PUBLISHED',
-            'team': request.data.get('team'), # team id
+            'team': request.data.get('team'),
             'media': None,
         }
-        serializer = MatchSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            class actions:
-                def __init__(self, name, key, color, match, status, enabled, default, events):
-                    self.key = key
-                    self.name = name
-                    self.color = color
-                    self.match = match
-                    self.enabled = enabled
-                    self.default = default
-                    self.events = events
-                    self.status = "PUBLISHED"
-            default_buttons = [actions('automatic', 'automatic', "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Substitution', 'substitution', "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Substitution Oponent', 'substitution_oponent', "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Yellow card', 'yellow_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Yellow card Oponent', 'yellow_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Red card', 'red_card',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Red card Oponent', 'red_card_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Goal', 'goal',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Goal oponent', 'goal_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Corner', 'corner',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               actions('Corner oponent', 'corner_oponent',  "#000000", new_match_id + 1, 'PUBLISHED', True, False, None),
-                               ]
+        
+        match_serializer = MatchSerializer(data=data)
+        if match_serializer.is_valid():
+            match = match_serializer.save()
+            
+            # Define default buttons with the new match ID
+            default_buttons = [
+                {'name': 'automatic', 'key': 'automatic'},
+                {'name': 'Substitution', 'key': 'substitution'},
+                {'name': 'Substitution Oponent', 'key': 'substitution_oponent'},
+                {'name': 'Yellow card', 'key': 'yellow_card'},
+                {'name': 'Yellow card Oponent', 'key': 'yellow_card_oponent'},
+                {'name': 'Red card', 'key': 'red_card'},
+                {'name': 'Red card Oponent', 'key': 'red_card_oponent'},
+                {'name': 'Goal', 'key': 'goal'},
+                {'name': 'Goal oponent', 'key': 'goal_oponent'},
+                {'name': 'Corner', 'key': 'corner'},
+                {'name': 'Corner oponent', 'key': 'corner_oponent'},
+            ]
 
             for button in default_buttons:
-                data = {
-                    'key': button.key,
-                    'name': button.name,
-                    'color': button.color,
-                    'match': button.match,
-                    'status': button.status,
-                    'enabled': button.enabled,
-                    'default': button.default,
-                    'events': button.events,
+                action_data = {
+                    'key': button['key'],
+                    'name': button['name'],
+                    'color': "#000000",
+                    'match': match.id,  # Use the actual match instance ID
+                    'status': "PUBLISHED",
+                    'enabled': True,
+                    'default': False,
+                    'events': None,
                     'updated_by': request.user.pk
                 }
-                action_serializer = ActionSerializer(data=data)
+                action_serializer = ActionSerializer(data=action_data)
                 if action_serializer.is_valid():
                     action_serializer.save()
-            try:
-                new_match_info_id = (MatchInfo.objects.last()).id
-            except:
-                new_match_info_id = 0
+                else:
+                    # If action creation fails, delete the match and return error
+                    match.delete()
+                    return Response(action_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+            # Create match info
             match_info_data = {
-                'id': new_match_info_id + 1,
-                'match': new_match_id + 1,
+                'match': match.id,  # Use the actual match instance ID
                 'yellow_card': 0,
                 'yellow_card_oponent': 0,
                 'red_card': 0,
@@ -215,11 +210,17 @@ class MatchListApiView(APIView):
                 'substitution': 0,
                 'substitution_oponent': 0,
             }
-            serializer = MatchInfoSerializer(data=match_info_data)
-            if serializer.is_valid():
-                serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            match_info_serializer = MatchInfoSerializer(data=match_info_data)
+            if match_info_serializer.is_valid():
+                match_info_serializer.save()
+                return Response(match_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                # If match info creation fails, delete the match and return error
+                match.delete()
+                return Response(match_info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, id, *args, **kwargs):
         match = Match.objects.get(id=id)
