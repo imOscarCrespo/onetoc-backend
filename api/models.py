@@ -92,7 +92,7 @@ class MatchInfo(models.Model):
     substitution_oponent = models.PositiveIntegerField(null=True)
 
     def __str__(self):
-        return "%s %s %s" % (self.name, self.team.name, self.id)
+        return "%s %s" % (self.match, self.id)
 
 class Action(models.Model):
     name = models.CharField(max_length=30)
