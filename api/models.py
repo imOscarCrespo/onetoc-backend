@@ -113,7 +113,7 @@ class Action(models.Model):
 
     def clean(self):
         # Validamos que tenga o bien team o bien match, pero no ambos o ninguno
-        if (self.team is None and self.match is None) or (self.team is not None and self.match is not None):
+        if (self.team is None and self.match is None):
             raise ValidationError('Action debe estar asociada a un team O a un match, no a ambos o a ninguno')
 
     def save(self, *args, **kwargs):

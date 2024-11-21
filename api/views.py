@@ -184,12 +184,15 @@ class MatchListApiView(APIView):
                     'name': button['name'],
                     'color': "#000000",
                     'match': match.id,  # Use the actual match instance ID
+                    'team': match.team.id,
                     'status': "PUBLISHED",
                     'enabled': True,
                     'default': False,
                     'events': None,
                     'updated_by': request.user.pk
                 }
+
+                
                 action_serializer = ActionSerializer(data=action_data)
                 if action_serializer.is_valid():
                     action_serializer.save()
@@ -369,6 +372,7 @@ class ActionListApiView(APIView):
             'name': request.data.get('name'),
             'color': request.data.get('color'),
             'match': request.data.get('match'),
+            'team': request.data.get('team'),
             'default': request.data.get('default'),
             'user_id': request.user.pk
         }
