@@ -5,6 +5,7 @@ from .views import (
     EventListApiView,
     MatchInfoListApiView,
     MatchListApiView,
+    PlayerApiView,
     TabListApiView,
     TeamListApiView,
     TimelineListApiView,
@@ -36,5 +37,7 @@ urlpatterns = [
     re_path('note/(?P<id>\d+)', NoteListApiView.as_view(), name='note_by_id'),
     path('timeline', TimelineListApiView.as_view()),
     path('csrf', CsrfApiView.as_view()),
-    path('logout', LogoutView.as_view())
+    path('logout', LogoutView.as_view()),
+    path('player', PlayerApiView.as_view()),
+    re_path('player/(?P<id>\d+)', PlayerApiView.as_view(), name='player_by_id')
 ]

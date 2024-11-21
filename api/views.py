@@ -8,9 +8,9 @@ from rest_framework import status
 from rest_framework import permissions
 
 from api.websocket import Websocket_status
-from .models import MatchInfo, Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
+from .models import MatchInfo, Player, Player_posittion, Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
 from .request_utils.paginator import paginate
-from .serializers import ClubSerializer, MatchInfoSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
+from .serializers import ClubSerializer, MatchInfoSerializer, PlayerSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
     ActionSerializer, WebsocketSerializer, EventSerializer
 from .models import Tab, TabType, Team, Match, Action, Club, Note
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, NoteSerializer
@@ -23,6 +23,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.utils import timezone
 from api.match_modes import Match_modes
+
 
 
 def stringToInt(str):
@@ -599,3 +600,61 @@ class Permission(APIView):
         permissions_without_api = [perm.replace('api.', '') for perm in api_permissions]
 
         return Response(permissions_without_api, status=status.HTTP_200_OK)
+
+class PlayerApiView(APIView):
+    
+        permission_classes = (IsAuthenticated,)
+    
+        def get(self, request, id=False, *args, **kwargs):
+            if id:
+                player = Player.objects.get(id=id)
+                serializer = PlayerSerializer(player)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                team = request.query_params.get('team')
+                players = Player.objects.filter(team=team)
+                serializer = PlayerSerializer(players, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        def post(self, request, *args, **kwargs):
+            try:
+                new_id = Player.objects.last().id + 1
+            except AttributeError:
+                new_id = 1  # Start with ID 1 if no players exist
+
+            data = {
+                'id': new_id,
+                'name': request.data.get('name'),
+                'team': request.data.get('team'),
+                'number': request.data.get('number'),
+                'total_minutes': 0,
+                'position' : Player_posittion.DEFENDER.value,
+                'updated_at': timezone.now(),
+                'created_at': timezone.now(),
+                'updated_by': request.user.pk
+            }
+            serializer = PlayerSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        def patch(self, request, id, *args, **kwargs):
+            player = Player.objects.get(id=id)
+            data = {}
+            fields = ['name', 'team', 'position', 'number', 'total_minutes']
+            for field in fields:
+                if field in request.data:
+                    value = request.data.get(field)
+                    setattr(player, field, value)
+                    data[field] = value
+            player.updated_at = timezone.now()
+            player.updated_by = request.user
+            player.save()
+            return Response(data, status=status.HTTP_200_OK)
+        
+        def delete(self, request, id, *args, **kwargs):
+            player = Player.objects.get(id=id)
+            player.delete()
+            return Response(status=status.HTTP_200_OK)

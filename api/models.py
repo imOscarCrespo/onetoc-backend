@@ -1,3 +1,4 @@
+from enum import Enum
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -157,3 +158,23 @@ class Event(models.Model):
     def delete(self):
         self.status = 'DELETED'
         self.save()
+
+class Player_posittion(Enum):
+        GOALKEEPER = 'GOALKEEPER'
+        DEFENDER = 'DEFENDER'
+        MIDFIELDER = 'MIDFIELDER'
+        FORWARD = 'FORWARD'
+
+class Player(models.Model):
+    team = models.ForeignKey(Team, on_delete = models.CASCADE)
+    name = models.CharField(max_length=30)
+    number = models.PositiveIntegerField()
+    position = EnumField(Player_posittion)
+    total_minutes = models.PositiveIntegerField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+
+    def __str__(self):
+        return "%s %s %s" % (self.team.id, self.name)
+
