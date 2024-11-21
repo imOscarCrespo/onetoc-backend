@@ -325,13 +325,14 @@ class ActionListApiView(APIView):
         default_actions_req = request.query_params.get('default')
         team_id = request.query_params.get('team')
         
-        match_ids = strToArr(match_ids_req[0])
-        query_filters = {'match__id__in': match_ids}
+        query_filters = {'team': team_id}
         
-        # Add team filter if team_id is provided
-        if team_id:
-            query_filters['match__team_id'] = team_id
+        # Add match filter if match_ids are provided
+        if match_ids_req and match_ids_req[0]:
+            match_ids = strToArr(match_ids_req[0])
+            query_filters['match__id__in'] = match_ids
         
+        # Add default filter if provided
         if default_actions_req:
             default_action_param = json.loads(default_actions_req.lower())
             query_filters['default'] = default_action_param

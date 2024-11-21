@@ -102,7 +102,7 @@ class Action(models.Model):
     key = models.CharField(max_length=30, null=True)
     color = models.CharField(max_length=30)
     match = models.ForeignKey(Match, on_delete=models.CASCADE, null=True, blank=True)  # Hacemos opcional el match
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)    # Añadimos team opcional
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)    # Añadimos team opcional
     default = models.BooleanField()
     enabled = models.BooleanField()
     status = models.CharField(max_length=30, null=True, default='ACTIVE')
