@@ -300,7 +300,7 @@ class MatchInfoListApiView(APIView):
             'red_card', 'red_card_opponent',
             'goal', 'goal_opponent',
             'substitution', 'substitution_opponent',
-            'corner', 'substitution_opponent'
+            'corner', 'corner_opponent', 'substitution_opponent'
         ]
         
         for field in fields:
