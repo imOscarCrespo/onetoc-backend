@@ -212,6 +212,8 @@ class MatchListApiView(APIView):
                 'goal_opponent': 0,
                 'substitution': 0,
                 'substitution_opponent': 0,
+                'corner': 0,
+                'corner_opponent': 0,
             }
             
             match_info_serializer = MatchInfoSerializer(data=match_info_data)
