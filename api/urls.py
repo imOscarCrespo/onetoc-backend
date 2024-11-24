@@ -13,7 +13,9 @@ from .views import (
     LogoutView,
     WebsocketApiView,
     NoteListApiView,
-    Permission
+    Permission,
+    PlayerApiView,
+    LineupApiView
 )
 
 urlpatterns = [
@@ -39,5 +41,7 @@ urlpatterns = [
     path('csrf', CsrfApiView.as_view()),
     path('logout', LogoutView.as_view()),
     path('player', PlayerApiView.as_view()),
-    re_path('player/(?P<id>\d+)', PlayerApiView.as_view(), name='player_by_id')
+    re_path('player/(?P<id>\d+)', PlayerApiView.as_view(), name='player_by_id'),
+    path('lineup', LineupApiView.as_view()),
+    re_path('lineup/(?P<id>\d+)', LineupApiView.as_view(), name='lineup_by_id'),
 ]

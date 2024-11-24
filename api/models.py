@@ -202,5 +202,20 @@ class Player(models.Model):
     updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
 
     def __str__(self):
-        return "%s %s %s" % (self.team.id, self.name)
+        return "%s %s" % (self.team.id, self.name)
+
+class Lineup(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)  # Asumiendo que tienes un modelo Match
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    is_starter = models.BooleanField(default=False)  # True si es titular, False si es suplente
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        # Asegura que un jugador no pueda estar dos veces en el mismo partido
+        unique_together = ['match', 'player']
+
+    def __str__(self):
+        return f"{self.match} - {self.player.name} ({'Titular' if self.is_starter else 'Suplente'})"
 

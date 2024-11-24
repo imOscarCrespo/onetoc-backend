@@ -8,9 +8,9 @@ from rest_framework import status
 from rest_framework import permissions
 
 from api.websocket import Websocket_status
-from .models import MatchInfo, Player, Player_posittion, Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
+from .models import Lineup, MatchInfo, Player, Player_posittion, Tab, TabType, Team, Match, Action, Club, Websocket, Event, User
 from .request_utils.paginator import paginate
-from .serializers import ClubSerializer, MatchInfoSerializer, PlayerSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
+from .serializers import ClubSerializer, LineupCreateSerializer, LineupSerializer, MatchInfoSerializer, PlayerSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, \
     ActionSerializer, WebsocketSerializer, EventSerializer
 from .models import Tab, TabType, Team, Match, Action, Club, Note
 from .serializers import ClubSerializer, TabTypeSerializer, TabSerializer, TeamSerializer, MatchSerializer, ActionSerializer, NoteSerializer
@@ -23,6 +23,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.utils import timezone
 from api.match_modes import Match_modes
+from rest_framework import viewsets
 
 
 
@@ -665,3 +666,76 @@ class PlayerApiView(APIView):
             player = Player.objects.get(id=id)
             player.delete()
             return Response(status=status.HTTP_200_OK)
+        
+
+class LineupApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, id=False, *args, **kwargs):
+        print('id', id)
+        if id:
+            try:
+                lineup = Lineup.objects.get(id=id)
+                serializer = LineupSerializer(lineup)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Lineup.DoesNotExist:
+                return Response({"error": "Lineup not found."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            print('request.query_params', request.query_params)
+            match_id = request.query_params.get('match')
+            if match_id:
+                lineups = Lineup.objects.filter(match=match_id).select_related('player')
+            else:
+                lineups = Lineup.objects.all().select_related('player')
+            
+            serializer = LineupSerializer(lineups, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        print('****** heyu')
+        lineup_data = request.data  # Esperando un solo objeto de alineación
+        print('lineup_data', lineup_data)
+
+        data = {
+            'match': lineup_data.get('match'),
+            'player': lineup_data.get('player'),
+            'is_starter': lineup_data.get('is_starter'),
+            'updated_by': request.user.pk,
+            'created_at': timezone.now(),
+            'updated_at': timezone.now(),
+        }
+        serializer = LineupCreateSerializer(data=data)
+        if serializer.is_valid():
+            created_lineup = serializer.save()
+            return Response(LineupSerializer(created_lineup).data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, id, *args, **kwargs):
+        try:
+            lineup = Lineup.objects.get(id=id)
+        except Lineup.DoesNotExist:
+            return Response({"error": "Lineup not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        data = {}
+        fields = ['match', 'player', 'is_starter']
+        for field in fields:
+            if field in request.data:
+                value = request.data.get(field)
+                setattr(lineup, field, value)
+                data[field] = value
+        lineup.updated_at = timezone.now()
+        lineup.updated_by = request.user.pk
+        lineup.save()
+        return Response(data, status=status.HTTP_200_OK)
+
+    def delete(self, request, id, *args, **kwargs):
+        try:
+            lineup = Lineup.objects.get(id=id)
+            lineup.delete()
+            return Response(status=status.HTTP_200_OK)
+        except Lineup.DoesNotExist:
+            return Response({"error": "Lineup not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
