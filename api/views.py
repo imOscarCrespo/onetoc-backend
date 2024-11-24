@@ -100,6 +100,41 @@ class TeamListApiView(APIView):
         if serializer.is_valid():
             team = serializer.save()
             team.users.add(request.user)
+            
+            # Define default buttons with the new match ID
+            default_buttons = [
+                {'name': 'automatic', 'key': 'automatic'},
+                {'name': 'Substitution', 'key': 'substitution'},
+                {'name': 'Substitution Oponent', 'key': 'substitution_opponent'},
+                {'name': 'Yellow card', 'key': 'yellow_card'},
+                {'name': 'Yellow card Oponent', 'key': 'yellow_card_opponent'},
+                {'name': 'Red card', 'key': 'red_card'},
+                {'name': 'Red card Oponent', 'key': 'red_card_opponent'},
+                {'name': 'Goal', 'key': 'goal'},
+                {'name': 'Goal oponent', 'key': 'goal_opponent'},
+                {'name': 'Corner', 'key': 'corner'},
+                {'name': 'Corner oponent', 'key': 'corner_opponent'},
+            ]
+
+            for button in default_buttons:
+                action_data = {
+                    'key': button['key'],
+                    'name': button['name'],
+                    'color': "#000000",
+                    'team': team.pk,
+                    'status': "PUBLISHED",
+                    'enabled': True,
+                    'default': False,
+                    'events': None,
+                    'updated_by': request.user.pk
+                }
+                action_serializer = ActionSerializer(data=action_data)
+                if action_serializer.is_valid():
+                    action_serializer.save()
+                else:
+                    # If action creation fails, delete the match and return error
+                    team.delete()
+                    return Response(action_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         print()
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -394,7 +429,7 @@ class EventListApiView(APIView):
             'action': request.data.get('action'),
             'created_at': request.data.get('createdAt') if request.data.get('createdAt') else datetime.now(),
             'status': "PUBLISHED",
-            'start': request.data.get('start') if request.data.get('start') else None,
+            'start': request.data.get('start'),
             'delay_start': request.data.get('delay_start') if request.data.get('delay_start') else 0,
             'updated_by': request.user.pk,
             'disabled': False
