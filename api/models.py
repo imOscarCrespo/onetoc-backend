@@ -15,6 +15,7 @@ class Club(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=30, null=True, default='ACTIVE')
+    users = models.ManyToManyField(User)
 
     def __str__(self):
         return self.name
@@ -156,14 +157,19 @@ class Note(models.Model):
         self.status = 'DELETED'
         self.save()
 
-class Event(models.Model):
-    match = models.ForeignKey(Match, on_delete = models.CASCADE)
-    action = models.ForeignKey(Action, on_delete = models.CASCADE)
+class BaseEvent(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    action = models.ForeignKey(Action, on_delete=models.CASCADE)
     status = models.CharField(max_length=30, null=True, default='ACTIVE')
-    delay = models.FloatField(null=True)
+    delay_start = models.IntegerField()
+    start = models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    delay_start = models.IntegerField(null=True)
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return "%s %s %s" % (self.match.id, self.action.id, self.id)
@@ -171,6 +177,13 @@ class Event(models.Model):
     def delete(self):
         self.status = 'DELETED'
         self.save()
+
+class Event(BaseEvent):
+    pass
+
+class TemporalEvent(BaseEvent):
+    end = models.IntegerField(null=True)
+    delay_end = models.IntegerField(null=True)
 
 class Player_posittion(Enum):
         GOALKEEPER = 'GOALKEEPER'

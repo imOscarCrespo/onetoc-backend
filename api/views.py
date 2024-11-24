@@ -58,13 +58,7 @@ class ClubListApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        '''
-        List all the club items for given requested user
-        '''
-        teams_query = Team.objects.filter(users__username=request.user).exclude(status='DELETED')
-        def return_club(team):
-            return team
-        clubs = map(return_club, teams_query)
+        clubs = Club.objects.filter(users__username=request.user).exclude(status='DELETED')
         serializer = ClubSerializer(clubs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -94,17 +88,20 @@ class TeamListApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        club_name = request.data.get('club_name')
-        club = Club.objects.get(name=club_name)
+        club_id = request.data.get('club')
+        print('*****', club_id)
+        club = Club.objects.get(id=club_id)
         data = {
             'name': request.data.get('name'),
-            'club': club
+            'club': club.pk,
+            'user': request.user.pk,
         }
         serializer = TeamSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            team = serializer.save()
+            team.users.add(request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        print()
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, id, *args, **kwargs):
@@ -162,45 +159,6 @@ class MatchListApiView(APIView):
         match_serializer = MatchSerializer(data=data)
         if match_serializer.is_valid():
             match = match_serializer.save()
-            
-            # Define default buttons with the new match ID
-            default_buttons = [
-                {'name': 'automatic', 'key': 'automatic'},
-                {'name': 'Substitution', 'key': 'substitution'},
-                {'name': 'Substitution Oponent', 'key': 'substitution_opponent'},
-                {'name': 'Yellow card', 'key': 'yellow_card'},
-                {'name': 'Yellow card Oponent', 'key': 'yellow_card_opponent'},
-                {'name': 'Red card', 'key': 'red_card'},
-                {'name': 'Red card Oponent', 'key': 'red_card_opponent'},
-                {'name': 'Goal', 'key': 'goal'},
-                {'name': 'Goal oponent', 'key': 'goal_opponent'},
-                {'name': 'Corner', 'key': 'corner'},
-                {'name': 'Corner oponent', 'key': 'corner_opponent'},
-            ]
-
-            for button in default_buttons:
-                action_data = {
-                    'key': button['key'],
-                    'name': button['name'],
-                    'color': "#000000",
-                    'match': match.id,  # Use the actual match instance ID
-                    'team': match.team.id,
-                    'status': "PUBLISHED",
-                    'enabled': True,
-                    'default': False,
-                    'events': None,
-                    'updated_by': request.user.pk
-                }
-
-                
-                action_serializer = ActionSerializer(data=action_data)
-                if action_serializer.is_valid():
-                    action_serializer.save()
-                else:
-                    # If action creation fails, delete the match and return error
-                    match.delete()
-                    return Response(action_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
             # Create match info
             match_info_data = {
                 'match': match.id,  # Use the actual match instance ID
@@ -347,26 +305,9 @@ class ActionListApiView(APIView):
         action_id_req = id
         action_res = Action.objects.get(id=action_id_req)
         enabled_req = request.data.get('enabled')
-        # has_to_disable = False
-        # actions_to_disable_once = ['kick_off','first_half','second_half','end']
         action_res.events = request.data.get('events')
-        # if action_res.name in actions_to_disable_once:
-        #     has_to_disable = True
         if enabled_req is not None:
             action_res.enabled = enabled_req
-        # if action_res.name == 'kick_off':
-        #     action_match = Match.objects.get(id=action_res.match.id)
-        #     started_at = action_res.events[0]
-        #     action_match.started_at = started_at
-        #     action_match.save()
-        # elif action_res.name == 'end':
-        #     finished_at = action_res.events[0]
-        #     action_match = Match.objects.get(id=action_res.match.id)
-        #     action_match.finished_at = finished_at
-        #     action_match.save()
-        # action_res.events = request.data.get('events')
-        # if has_to_disable == True:
-        #     action_res.enabled = False
         action_res.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -374,7 +315,6 @@ class ActionListApiView(APIView):
         action_data = {
             'name': request.data.get('name'),
             'color': request.data.get('color'),
-            'match': request.data.get('match'),
             'team': request.data.get('team'),
             'default': request.data.get('default'),
             'user_id': request.user.pk
@@ -454,10 +394,12 @@ class EventListApiView(APIView):
             'action': request.data.get('action'),
             'created_at': request.data.get('createdAt') if request.data.get('createdAt') else datetime.now(),
             'status': "PUBLISHED",
-            'delay': request.data.get('delay') if request.data.get('delay') else 0,
+            'start': request.data.get('start') if request.data.get('start') else None,
+            'delay_start': request.data.get('delay_start') if request.data.get('delay_start') else 0,
             'updated_by': request.user.pk,
             'disabled': False
         }
+        print(request.data.get('delay_start'))
         serializer = EventSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -470,12 +412,16 @@ class EventListApiView(APIView):
         if event_id:
             event_to_update = Event.objects.get(id=event_id)
             action_id = request.data.get('action_id')
-            delay = request.data.get('delay')
+            start = request.data.get('start')
+            delay_start = request.data.get('delay_start')
             status_code = request.data.get('status')
+            print('delay_start', delay_start)
             if action_id:
                 event_to_update.action = action_id
-            if delay:
-                event_to_update.delay = delay
+            if start:
+                event_to_update.start = start
+            if delay_start:
+                event_to_update.delay_start = delay_start
             if status_code:
                 event_to_update.status = status_code
             event_to_update.updated_by = User.objects.get(id=request.user.pk)
