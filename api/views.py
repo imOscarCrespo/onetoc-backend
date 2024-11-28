@@ -116,6 +116,7 @@ class TeamListApiView(APIView):
                 {'name': 'Corner', 'key': 'corner'},
                 {'name': 'Corner oponent', 'key': 'corner_opponent'},
                 {'name': 'First half', 'key': 'first_half'},
+                {'name': 'Goal kick', 'key': 'goal kick'},
             ]
 
             for button in default_buttons:
