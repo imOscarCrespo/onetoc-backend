@@ -104,7 +104,6 @@ class TeamListApiView(APIView):
             
             # Define default buttons with the new match ID
             default_buttons = [
-                {'name': 'automatic', 'key': 'automatic'},
                 {'name': 'Substitution', 'key': 'substitution'},
                 {'name': 'Substitution Oponent', 'key': 'substitution_opponent'},
                 {'name': 'Yellow card', 'key': 'yellow_card'},
