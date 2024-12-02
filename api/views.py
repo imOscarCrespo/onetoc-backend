@@ -350,8 +350,17 @@ class ActionListApiView(APIView):
         action_res = Action.objects.get(id=action_id_req)
         enabled_req = request.data.get('enabled')
         action_res.events = request.data.get('events')
+        status_req = request.data.get('status')
+        
+        # Añadir actualización del nombre de la acción
+        name_req = request.data.get('name')
+        if name_req is not None:
+            action_res.name = name_req  # Actualiza el nombre de la acción
+        
         if enabled_req is not None:
             action_res.enabled = enabled_req
+        if status_req is not None:
+            action_res.status = status_req
         action_res.save()
         return Response(status=status.HTTP_200_OK)
 
