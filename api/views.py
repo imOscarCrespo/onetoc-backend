@@ -192,6 +192,7 @@ class MatchListApiView(APIView):
             'status': 'PUBLISHED',
             'team': request.data.get('team'),
             'media': None,
+            'second_media': None,
         }
         
         match_serializer = MatchSerializer(data=data)
@@ -226,6 +227,7 @@ class MatchListApiView(APIView):
     def patch(self, request, id, *args, **kwargs):
         match = Match.objects.get(id=id)
         media_url = request.data.get('media')
+        second_media_url = request.data.get('second_media')
         started_at = request.data.get('started')
         finished_at = request.data.get('finished')
         mode = request.data.get('mode')
@@ -233,6 +235,9 @@ class MatchListApiView(APIView):
         if media_url is not None:
             match.media = media_url
             data['media'] = media_url
+        if second_media_url is not None:
+            match.second_media = second_media_url
+            data['second_media'] = second_media_url
         if started_at:
             match.started_at = timezone.now()
             data['started_at'] = timezone.now()

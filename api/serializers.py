@@ -33,7 +33,7 @@ class MatchSerializer(serializers.ModelSerializer):
     mode = EnumChoiceField(Match_modes, default=Match_modes.LIVE)
     class Meta:
         model = Match
-        fields = ['id', 'name', 'timeline', 'team', 'media', 'status', 'tab', 'created_at', 'started_at', 'finished_at', 'mode']
+        fields = ['id', 'name', 'timeline', 'team', 'media', 'second_media', 'status', 'tab', 'created_at', 'started_at', 'finished_at', 'mode']
 class MatchInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = MatchInfo

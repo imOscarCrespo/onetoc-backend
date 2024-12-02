@@ -67,6 +67,7 @@ class Match(models.Model):
     timeline = models.URLField(max_length = 200, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete = models.CASCADE)
     media = models.URLField(max_length = 200, null=True, blank=True)
+    second_media = models.URLField(max_length = 200, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     started_at = models.CharField(max_length=200, null=True)
