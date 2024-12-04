@@ -117,6 +117,11 @@ class TeamListApiView(APIView):
                 {'name': 'Corner', 'key': 'corner'},
                 {'name': 'Corner oponent', 'key': 'corner_opponent'},
                 {'name': 'First half', 'key': 'first_half'},
+                {'name': 'automatic', 'key': 'automatic'},
+                {'name': 'Goal chance', 'key': 'goal_chance'},
+                {'name': 'Goal chance Opponent', 'key': 'goal_chance_opponent'},
+                {'name': 'Free kick', 'key': 'free_kick'},
+                {'name': 'Freekick Opponent', 'key': 'free_kick_opponent'},
             ]
 
             for button in default_buttons:
@@ -342,7 +347,10 @@ class ActionListApiView(APIView):
         
         actions = Action.objects.filter(**query_filters).exclude(status='DELETED').order_by('updated_at')
         serializer = ActionSerializer(actions, many=True)
-        print(serializer.data)
+        
+        # Print the total number of actions
+        print('Total actions:', actions.count())
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def patch(self, request, id, *args, **kwargs):
