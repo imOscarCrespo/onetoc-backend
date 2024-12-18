@@ -1,7 +1,7 @@
 asgiref==3.5.2
 boto3==1.24.86
 botocore==1.27.96
-Django==4.1.1
+Django==4.2.17
 djangorestframework==3.14.0
 jmespath==1.0.1
 psycopg2-binary==2.9.3
