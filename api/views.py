@@ -361,6 +361,7 @@ class ActionListApiView(APIView):
         enabled_req = request.data.get('enabled')
         action_res.events = request.data.get('events')
         status_req = request.data.get('status')
+        color_req = request.data.get('color')
         
         # Añadir actualización del nombre de la acción
         name_req = request.data.get('name')
@@ -371,6 +372,8 @@ class ActionListApiView(APIView):
             action_res.enabled = enabled_req
         if status_req is not None:
             action_res.status = status_req
+        if color_req is not None:
+            action_res.color = color_req
         action_res.save()
         return Response(status=status.HTTP_200_OK)
 
